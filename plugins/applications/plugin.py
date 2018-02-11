@@ -8,7 +8,7 @@ from fenx.base_plugin.plugin import BasePlugin
 from fenx.config import config, settings
 from fenx.launcher.tray_menu.widgets import main_menu
 from fenx.studio import app_wrappers
-from fenx.resources import icon
+from fenx.resources import get_icon, convert
 
 logger = _logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ class Plugin(BasePlugin):
                     from fenx.studio.app_wrappers import _base
                     app = _base.BaseApplication()
 
-                ico = icon(app.app_name) or app.icon
+                ico = get_icon(app.app_name) or app.icon
                 if app.mods and len(app.mods) > 1:
                     # submenu
                     app_menu = main_menu.SubMenu(app.name, ico)
@@ -66,12 +66,12 @@ class Plugin(BasePlugin):
                                 mode=mod.name,
                                 title=app.name + (
                                 (' / %s' % mod.title) if not mod.name == app._default_mod else ''),
-                                icon=icon(mod.icon) or ico,
+                                icon=get_icon(mod.icon) or ico,
                                 args=[]
                             )
                         it = main_menu.MenuItem(
                             text=mod.title,
-                            icon=icon(mod.icon) or ico,
+                            icon=get_icon(mod.icon) or ico,
                             callback=partial(self.start_app, app.app_name, app.version, mod.name),
                             shift_callback=partial(self.pin_app, app_data),
                             ctrl_callback=partial(self.create_shortcut, app_data)
@@ -94,12 +94,12 @@ class Plugin(BasePlugin):
                             mode=mod.name,
                             title=app.name + (
                                 (' / %s' % mod.title) if not mod.name == app._default_mod else ''),
-                            icon=icon(mod.icon) or ico,
+                            icon=get_icon(mod.icon) or ico,
                             args=[]
                         )
                         it = main_menu.MenuItem(
                             text=mod.title,
-                            icon=icon(mod.icon) or ico,
+                            icon=get_icon(mod.icon) or ico,
                             callback=partial(self.start_app, app.app_name, app.version, mod.name),
                             shift_callback=partial(self.pin_app, app_data),
                             ctrl_callback=partial(self.create_shortcut, app_data),
@@ -113,13 +113,13 @@ class Plugin(BasePlugin):
                             version=app.version,
                             mode='default',
                             title=app.name,
-                            icon=icon(app.icon) or ico,
+                            icon=get_icon(app.icon) or ico,
                             args=[]
                         )
                         # default command
                         it = main_menu.MenuItem(
                             text=app.name,
-                            icon=icon(app.icon),
+                            icon=get_icon(app.icon),
                             callback=partial(self.start_app, app.app_name, app.version, 'default'),
                             shift_callback=partial(self.pin_app, app_data),
                             ctrl_callback=partial(self.create_shortcut, app_data)
@@ -201,27 +201,27 @@ class Plugin(BasePlugin):
         app = app_wrappers.get_app(data.get('app'), data.get('version'))
         mode = data.get('mode', app._default_mod)
         logger.debug('Create shortcut for %s in mode %s' % (app.app_name, mode))
-        executable = os.path.normpath(app.join(os.getenv('PIPELINE_LOCATION'), 'start_app.cmd'))
+        executable = os.path.normpath(app.join(os.getenv('STUDIO_LOCATION'), 'start_app.cmd'))
         if not os.path.exists(executable):
             return
         if settings.USE_MOD_ICONS_FOR_SHORTCITS:
             mod = app.mod_by_name(mode)
             if mod:
-                ico = icon(mod.icon) or icon(app.icon)
+                ico = get_icon(mod.icon) or get_icon(app.icon)
             else:
-                ico = icon(app.icon)
+                ico = get_icon(app.icon)
         else:
-            ico = icon(app.icon)
+            ico = get_icon(app.icon)
 
         if os.path.exists(ico):
             if os.path.splitext(ico)[-1] != '.ico':
-                ico = res.png_to_ico(ico)
+                ico = convert.png_to_ico(ico)
         else:
             ico = None
 
-        ico = ico or icon('noicon.ico')
+        ico = ico or get_icon('noicon.ico')
         # todo: if not mode == default make compose from default icon and mode icon
-        workdir = os.path.normpath(os.getenv('PIPELINE_LOCATION'))
+        workdir = os.path.normpath(os.getenv('STUDIO_LOCATION'))
         cmd = '{exe} -app {app} -ver {version} -mod {mode}'.format(
             exe=executable,
             app=app.app_name,

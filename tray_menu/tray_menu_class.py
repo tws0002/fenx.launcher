@@ -5,7 +5,7 @@ import inspect
 from widgets import main_menu
 from fenx.config import config, settings
 from fenx.studio.events import event
-from fenx.resources import icon
+from fenx.resources import get_icon
 from fenx.user import user
 from fenx.py_console import console, formatter
 from __init__ import __version__ as version
@@ -46,16 +46,16 @@ class LauncherTrayMenu(QObject):
         log_file = os.path.join(settings._root_dir, '.%sstarter_console.log' % (
         (config._get('STUDIO_NAME', '') + '_') if config._get('STUDIO_NAME') else ''))
         return console.Console(self, formatter=frm, log_file=log_file,
-                                     load_settings_callback=lambda: settings.console_geo,
-                                     save_settings_callback=lambda x: settings._set_value('console_geo',x)
+                                     load_settings_callback=lambda: settings.CONSOLE_PREFS,
+                                     save_settings_callback=lambda x: settings._set_value('CONSOLE_PREFS',x)
                                )
 
     def set_waiting(self, text):
-        self.tray_icon.setIcon(QIcon(icon('tray_wait')))
+        self.tray_icon.setIcon(QIcon(get_icon('tray_wait')))
         self.waiting_menu(text)
 
     def set_normal(self):
-        self.tray_icon.setIcon(QIcon(icon('tray')))
+        self.tray_icon.setIcon(QIcon(get_icon('tray')))
 
     def tray_icon_activated(self, reason):
         """
@@ -103,7 +103,7 @@ class LauncherTrayMenu(QObject):
     def set_menu(self, menu, icon=None):
         self.tray_menu = menu
         self.tray_icon.setContextMenu(self.tray_menu)
-        self.tray_icon.setIcon(QIcon(icon(icon or 'tray')))
+        self.tray_icon.setIcon(QIcon(get_icon(icon or 'tray')))
 
     def update_menu(self):
         """

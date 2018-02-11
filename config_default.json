@@ -13,10 +13,13 @@
   // URL for HELP action
   "HELP_URL": "http://paulwinex.com",
   //  "LOGIN_DIALOG_CLASS": "fenx.launcher.tray_menu.widgets.login_dialog.LoginDialog",   // default dialog
+  "RESOURCE_ICON_PATH+":[
+    "$CONFIG_FILE_DIR/icons"
+  ],
   "include": [
     "$CONFIG_FILE_DIR/config.json",
     // add default plugins
-    "$CONFIG_FILE_DIR/plugins/applications/config.json",
-    "$CONFIG_FILE_DIR/plugins/tools/config.json"
+    "$CONFIG_FILE_DIR/plugins/applications/config_default.json",
+    "$CONFIG_FILE_DIR/plugins/tools/config_default.json"
   ]
 }

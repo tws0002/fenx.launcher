@@ -1,12 +1,11 @@
 import logging as _logging
 import os
 import re
-
 from PySide.QtCore import *
 from PySide.QtGui import *
 from fenx.config import config
 # todo: use Qt.py
-from resources import res
+from fenx.resources import get_icon
 
 logger = _logging.getLogger(__name__)
 
@@ -71,7 +70,7 @@ class MainTrayMenu(Menu):
             elif item.type == SubMenu.type:
                 menu = Menu(item.text, parent_menu)
                 menu.setObjectName('menulevel_%s' % level)
-                ico = self.create_icon(res.icon(item.icon))
+                ico = self.create_icon(get_icon(item.icon))
                 menu.menuAction().setData(dict(name=item.name, level=level))
                 if ico:
                     menu.setIcon(QIcon(ico))
@@ -90,7 +89,7 @@ class MainTrayMenu(Menu):
                 a.setData(dict(item=item))
                 if not item.enabled:
                     a.setEnabled(False)
-                ico = self.create_icon(res.icon(item.icon))
+                ico = self.create_icon(get_icon(item.icon))
                 if ico:
                     a.setIcon(QIcon(ico))
                 # if item.callback:
@@ -107,15 +106,27 @@ class MainTrayMenu(Menu):
         action = self.sender()
         item = (action.data() or {}).get('item')
         if QApplication.keyboardModifiers() == Qt.ShiftModifier and item.shift_callback:
-            item.shift_callback()
+            if callable(item.shift_callback):
+                item.shift_callback()
+            else:
+                logger.error('shift_callback is not callable')
             return
         elif QApplication.keyboardModifiers() == Qt.ControlModifier and item.ctrl_callback:
-            item.ctrl_callback()
+            if callable(item.ctrl_callback):
+                item.ctrl_callback()
+            else:
+                logger.error('shift_callback is not callable')
             return
         elif QApplication.keyboardModifiers() == Qt.AltModifier and item.alt_callback:
-            item.alt_callback()
+            if callable(item.alt_callback):
+                item.alt_callback()
+            else:
+                logger.error('alt_callback is not callable')
             return
-        item.callback()
+        if callable(item.callback):
+            item.callback()
+        else:
+            logger.error('callback is not callable')
         return
         # if item.is_resent:
         #     if QApplication.keyboardModifiers() == Qt.ShiftModifier:

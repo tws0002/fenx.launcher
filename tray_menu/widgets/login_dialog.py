@@ -10,7 +10,7 @@ login_dialog_UIs = qt_ui_loader.UiLoader.load('fenx.launcher.tray_menu.widgets.l
 if not login_dialog_UIs:
     raise Exception('Cant load UI module')
 from fenx.config import settings
-from fenx.resources import icon
+from fenx.resources import get_icon
 import webbrowser, os
 
 
@@ -77,7 +77,7 @@ class LoginDialog(QDialog, login_dialog_UIs.Ui_login):
             QTimer.singleShot(timeout*1000, lambda : self.message_lb.setText(''))
 
     def set_logo(self, path):
-        path = icon(path)
+        path = get_icon(path)
         if path and os.path.exists(path):
             self.logo_lb.setPixmap(QPixmap(path).scaled(self.width(),self.logo_lb.height(),Qt.KeepAspectRatio, Qt.SmoothTransformation))
         else:
