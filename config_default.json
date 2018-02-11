@@ -1,0 +1,22 @@
+{
+  // icon name to file or new name
+  "ICONS": {
+    "tray": "$CONFIG_FILE_DIR/icons/tray.png",
+    "tray_wait": "$CONFIG_FILE_DIR/icons/tray_wait.png",
+    "logo": "$CONFIG_FILE_DIR/icons/logo.png",
+    // mod name to icon name
+    "super": "star"
+  },
+  // menu size
+  "MENU_ICON_SIZE": 26,
+  "MENU_ICON_FONT_SIZE": "18px",
+  // URL for HELP action
+  "HELP_URL": "http://paulwinex.com",
+  //  "LOGIN_DIALOG_CLASS": "fenx.launcher.tray_menu.widgets.login_dialog.LoginDialog",   // default dialog
+  "include": [
+    "$CONFIG_FILE_DIR/config.json",
+    // add default plugins
+    "$CONFIG_FILE_DIR/plugins/applications/config.json",
+    "$CONFIG_FILE_DIR/plugins/tools/config.json"
+  ]
+}
