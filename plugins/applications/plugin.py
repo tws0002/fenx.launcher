@@ -3,7 +3,7 @@
 import logging as _logging
 import os
 from functools import partial
-
+from fenx.tools import shortcuts
 from fenx.base_plugin.plugin import BasePlugin
 from fenx.config import config, settings
 from fenx.launcher.tray_menu.widgets import main_menu
@@ -189,106 +189,129 @@ class Plugin(BasePlugin):
         self.show_message('Applications Updated')
 
     def create_shortcut(self, data):
-        if os.name == 'nt':
-            self._create_shortcut_win(data)
-        elif os.name == 'posix':
-            self._create_shortcut_linux(data)
-        else:
-            logger.error('not implemented')
-
-    def _create_shortcut_win(self, data):
-        # todo: create shortcut
         app = app_wrappers.get_app(data.get('app'), data.get('version'))
-        mode = data.get('mode', app._default_mod)
-        logger.debug('Create shortcut for %s in mode %s' % (app.app_name, mode))
         executable = os.path.normpath(app.join(os.getenv('STUDIO_LOCATION'), 'start_app.cmd'))
-        if not os.path.exists(executable):
-            return
-        if settings.USE_MOD_ICONS_FOR_SHORTCITS:
-            mod = app.mod_by_name(mode)
-            if mod:
-                ico = get_icon(mod.icon) or get_icon(app.icon)
-            else:
-                ico = get_icon(app.icon)
-        else:
-            ico = get_icon(app.icon)
-
+        mode = data.get('mode', app._default_mod)
+        ico = app.icon
         if os.path.exists(ico):
             if os.path.splitext(ico)[-1] != '.ico':
                 ico = convert.png_to_ico(ico)
         else:
-            ico = None
+            ico = get_icon('noicon.ico')
+        res = shortcuts.create_shortcut(source_app=executable,
+                                        title=' '.join([app.name, mode.title()]),
+                                        destination_dir=shortcuts.DIR.DESKTOP,
+                                        icon=ico,
+                                        description='Pipeline start for {}'.format(app.name.title()),
+                                        workdir=app.work_dir() or os.getenv('STUDIO_LOCATION'),
+                                        kwargs=dict(
+                                            app=app.app_name,
+                                            ver=app.version,
+                                            mod=mode
+                                          )
+                                        )
+        if not res:
+            logger.error('Shortcut not created')
+        # if os.name == 'nt':
+        #     self._create_shortcut_win(data)
+        # elif os.name == 'posix':
+        #     self._create_shortcut_linux(data)
+        # else:
+        #     logger.error('not implemented')
 
-        ico = ico or get_icon('noicon.ico')
-        # todo: if not mode == default make compose from default icon and mode icon
-        workdir = os.path.normpath(os.getenv('STUDIO_LOCATION'))
-        cmd = '{exe} -app {app} -ver {version} -mod {mode}'.format(
-            exe=executable,
-            app=app.app_name,
-            version=app.version,
-            mode=mode)
-        logger.debug('Command for shortcut: %s' % cmd)
-        vb = r'''
-            Set objShell = WScript.CreateObject("WScript.Shell")
-            strDesktopFolder = objShell.SpecialFolders("Desktop")
-            Set objShortCut = objShell.CreateShortcut(strDesktopFolder & "\{title}.lnk")
-            objShortCut.TargetPath = "{executable}"
-            objShortCut.IconLocation = "{ico}"
-            objShortCut.WindowStyle = "7"
-            objShortCut.Description = "Pipeline launcher"
-            objShortCut.Arguments = " -app '{app}' -ver '{version}' -mod '{mod}'"
-            objShortCut.WorkingDirectory = "{wd}"
-            objShortCut.Save'''.format(
-            title=' '.join([app.name, mode.title()]),
-            executable=executable,
-            ico=ico,
-            app=app.app_name,
-            version=app.version,
-            mod=mode,
-            wd=workdir
-        ).replace("'", '" & chr(34) & "')
-        import tempfile
-        fileTemp = tempfile.NamedTemporaryFile(delete=False, suffix='.vbs')
-        fileTemp.write(vb)
-        fileTemp.close()
-        # create shortcut on desktop
-        os.startfile(fileTemp.name)
-
-    def _create_shortcut_linux(self, mode):
-        path = os.path.expanduser('~/Desktop/Launcher.desktop')
-
-        text = '''\
-    [Desktop Entry]
-    Version=1.0
-    Type=Application
-    Name={app_name}
-    Comment={app_name}
-    Exec={executable}
-    Icon={icon}
-    Path={path}
-    Terminal=false
-    StartupNotify=false
-    Keywords=Pipeline;cg;starter;launcher
-    Categories=GNOME;GTK;Graphics;3DGraphics;
-    X-GNOME-Autostart-Delay=5
-    '''.format(
-            app_name='HELLO',
-            executable='/home/paul/dev/studio_pipeline/start_tray.sh',
-            icon='/home/paul/dev/studio_pipeline/tools/pipeline_starter/icons/menu.png',
-            path='/home/paul/dev/studio_pipeline'
-        )
-        open(path, 'w').write(text)
-        os.system('chmod +x ' + path)
-
-
-            # class ApplicationItem(main_menu.MenuItem):
-#     def __init__(self, text, add_to_resent=None, *args, **kwargs):
-#         super(ApplicationItem, self).__init__(text, *args, **kwargs)
-#         self.add_to_resent = add_to_resent or {}
-#         self.is_resent = False
-#
-#     def resent_data(self):
-#         if self.add_to_resent:
-#             return self.add_to_resent
+#     def _create_shortcut_win(self, data):
+#         # todo: create shortcut
+#         app = app_wrappers.get_app(data.get('app'), data.get('version'))
+#         mode = data.get('mode', app._default_mod)
+#         logger.debug('Create shortcut for %s in mode %s' % (app.app_name, mode))
+#         executable = os.path.normpath(app.join(os.getenv('STUDIO_LOCATION'), 'start_app.cmd'))
+#         if not os.path.exists(executable):
+#             return
+#         if settings.USE_MOD_ICONS_FOR_SHORTCITS:
+#             mod = app.mod_by_name(mode)
+#             if mod:
+#                 ico = get_icon(mod.icon) or get_icon(app.icon)
+#             else:
+#                 ico = get_icon(app.icon)
 #         else:
-#             return {}
+#             ico = get_icon(app.icon)
+#
+#         if os.path.exists(ico):
+#             if os.path.splitext(ico)[-1] != '.ico':
+#                 ico = convert.png_to_ico(ico)
+#         else:
+#             ico = None
+#
+#         ico = ico or get_icon('noicon.ico')
+#         # todo: if not mode == default make compose from default icon and mode icon
+#         workdir = os.path.normpath(os.getenv('STUDIO_LOCATION'))
+#         cmd = '{exe} -app {app} -ver {version} -mod {mode}'.format(
+#             exe=executable,
+#             app=app.app_name,
+#             version=app.version,
+#             mode=mode)
+#         logger.debug('Command for shortcut: %s' % cmd)
+#         vb = r'''
+#             Set objShell = WScript.CreateObject("WScript.Shell")
+#             strDesktopFolder = objShell.SpecialFolders("Desktop")
+#             Set objShortCut = objShell.CreateShortcut(strDesktopFolder & "\{title}.lnk")
+#             objShortCut.TargetPath = "{executable}"
+#             objShortCut.IconLocation = "{ico}"
+#             objShortCut.WindowStyle = "7"
+#             objShortCut.Description = "Pipeline launcher"
+#             objShortCut.Arguments = " -app '{app}' -ver '{version}' -mod '{mod}'"
+#             objShortCut.WorkingDirectory = "{wd}"
+#             objShortCut.Save'''.format(
+#             title=' '.join([app.name, mode.title()]),
+#             executable=executable,
+#             ico=ico,
+#             app=app.app_name,
+#             version=app.version,
+#             mod=mode,
+#             wd=workdir
+#         ).replace("'", '" & chr(34) & "')
+#         import tempfile
+#         fileTemp = tempfile.NamedTemporaryFile(delete=False, suffix='.vbs')
+#         fileTemp.write(vb)
+#         fileTemp.close()
+#         # create shortcut on desktop
+#         os.startfile(fileTemp.name)
+#
+#     def _create_shortcut_linux(self, mode):
+#         path = os.path.expanduser('~/Desktop/Launcher.desktop')
+#
+#         text = '''\
+#     [Desktop Entry]
+#     Version=1.0
+#     Type=Application
+#     Name={app_name}
+#     Comment={app_name}
+#     Exec={executable}
+#     Icon={icon}
+#     Path={path}
+#     Terminal=false
+#     StartupNotify=false
+#     Keywords=Pipeline;cg;starter;launcher
+#     Categories=GNOME;GTK;Graphics;3DGraphics;
+#     X-GNOME-Autostart-Delay=5
+#     '''.format(
+#             app_name='HELLO',
+#             executable='/home/paul/dev/studio_pipeline/start_tray.sh',
+#             icon='/home/paul/dev/studio_pipeline/tools/pipeline_starter/icons/menu.png',
+#             path='/home/paul/dev/studio_pipeline'
+#         )
+#         open(path, 'w').write(text)
+#         os.system('chmod +x ' + path)
+#
+#
+#             # class ApplicationItem(main_menu.MenuItem):
+# #     def __init__(self, text, add_to_resent=None, *args, **kwargs):
+# #         super(ApplicationItem, self).__init__(text, *args, **kwargs)
+# #         self.add_to_resent = add_to_resent or {}
+# #         self.is_resent = False
+# #
+# #     def resent_data(self):
+# #         if self.add_to_resent:
+# #             return self.add_to_resent
+# #         else:
+# #             return {}
