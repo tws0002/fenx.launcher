@@ -6,6 +6,6 @@ _tmp
 _todo
 config.json
 config_*.json
-!/config_default.json
+!config_default.json
 /scripteditor.cmd
 /icons/black/
