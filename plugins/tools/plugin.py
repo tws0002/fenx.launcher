@@ -28,7 +28,7 @@ class Plugin(BasePlugin):
                                               ))
 
         tools_menu.append(admmin_menu)
-        if config._get('LOG_LEVEL') == 'DEBUG':
+        if config._get('DEBUG'):
             dbg_menu = main_menu.SubMenu('Debug', 'debug', name=self.item_name+'_debug')
             dbg_menu.append(main_menu.MenuItem('Console', 'console',
                                                lambda *a: [self.main.CONSOLE.show(), self.main.CONSOLE.activateWindow()]))
@@ -41,7 +41,7 @@ class Plugin(BasePlugin):
 
 
     def open_python_shell(self):
-        from debug_tools import python_shell
+        from fenx.debug_tools import python_shell
         reload(python_shell)
         python_shell._open_shell()
 
