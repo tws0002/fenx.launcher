@@ -1,7 +1,8 @@
 from fenx.base_plugin.plugin import BasePlugin
 from fenx.config import config, settings
 from fenx.launcher.tray_menu.widgets import main_menu
-from fenx.studio import app_wrappers
+from fenx.tools.utils import open_folder, open_text_file
+import os
 
 
 class Plugin(BasePlugin):
@@ -19,12 +20,12 @@ class Plugin(BasePlugin):
         admmin_menu = main_menu.SubMenu('Admin', 'gears', name=self.item_name + '_admin')
         admmin_menu.append(main_menu.MenuItem('Debug Info', 'nav', self.show_debug_panel))
         admmin_menu.append(main_menu.MenuItem('Pipeline Folder', 'folder_open',
-                                           lambda: app_wrappers.BaseApplication.open_folder(
-                                               config.PIPELINE_LOCATION)))
+                                           lambda: open_folder(config.PIPELINE_LOCATION)))
         admmin_menu.append(main_menu.MenuItem('Settings Folder', 'settings',
-                                           lambda: app_wrappers.BaseApplication.open_folder(
-                                               settings._root_dir)))
-        admmin_menu.append(main_menu.MenuItem('Config File', 'document',))
+                                           lambda: open_folder(settings._root_dir)))
+        admmin_menu.append(main_menu.MenuItem('Config File', 'document',
+                                              lambda :open_text_file( os.path.join(os.getenv('STUDIO_LOCATION', ''), 'config.json'))
+                                              ))
 
         tools_menu.append(admmin_menu)
         if config._get('LOG_LEVEL') == 'DEBUG':
