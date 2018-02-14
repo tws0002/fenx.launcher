@@ -229,7 +229,7 @@ class LauncherTrayMenu(QObject):
 
     @staticmethod
     def not_implement():
-        QMessageBox.warning(None, 'Not Implement', 'Sorry. This fumction not implement yet')
+        QMessageBox.warning(None, 'Not Implement', 'Sorry. This function not implement yet')
 
     def init_plugins(self):
         from fenx.studio import plugins
