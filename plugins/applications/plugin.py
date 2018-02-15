@@ -3,12 +3,13 @@
 import logging as _logging
 import os
 from functools import partial
-from fenx.tools import shortcuts
+import shared_methods
 from fenx.base_plugin.plugin import BasePlugin
 from fenx.config import config, settings
-from fenx.launcher.tray_menu.widgets import main_menu
-from fenx.studio import app_wrappers
 from fenx.resources import get_icon, convert
+from fenx.studio import app_wrappers
+from fenx.tools import shortcuts
+from fenx.launcher.widgets import main_menu
 
 logger = _logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ class Plugin(BasePlugin):
 
     def __init__(self, parent):
         super(Plugin, self).__init__(parent)
-        # self.user = self.main.user
+        self.SHARED_METHODS = shared_methods.SharedMethods(self)
 
     def menu_items(self):
         ITEMS = []
@@ -296,7 +297,7 @@ class Plugin(BasePlugin):
 #     X-GNOME-Autostart-Delay=5
 #     '''.format(
 #             app_name='HELLO',
-#             executable='/home/paul/dev/studio_pipeline/start_tray.sh',
+#             executable='/home/paul/dev/studio_pipeline/start.sh',
 #             icon='/home/paul/dev/studio_pipeline/tools/pipeline_starter/icons/menu.png',
 #             path='/home/paul/dev/studio_pipeline'
 #         )

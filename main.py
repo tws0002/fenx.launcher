@@ -1,31 +1,39 @@
+import inspect
+import logging as _logging
+import os, sys
+import shared_methods
 from PySide.QtCore import *
 from PySide.QtGui import *
-import sys, os, traceback
-import inspect
-from widgets import main_menu
 from fenx.config import config, settings
-from fenx.studio.events import event
+from fenx.py_console import console
 from fenx.resources import get_icon
 from fenx.user import user
-from fenx.py_console import console, formatter
-from __init__ import __version__ as version
-import logging as _logging
-from functools import partial
+from fenx.launcher import __version__ as version
+from widgets import main_menu
+
 logger = _logging.getLogger(__name__)
 
 
-class LauncherTrayMenu(QObject):
+class Launcher(QObject):
     """
     Tray menu for pipeline starter
     Run Help menu for details
     """
+    NO_GUI = '-nogui' in sys.argv
+    executeSignal = Signal(object)
+
     def __init__(self):
-        super(LauncherTrayMenu, self).__init__()
+        super(Launcher, self).__init__()
+        self.executeSignal.connect(self._execute_signal)
+        if self.NO_GUI:
+            # todo: add no gui mode
+            pass
         self.tray_icon = QSystemTrayIcon(self)
         self.tray_icon.activated.connect(self.tray_icon_activated)
         self.set_normal()
         # https://github.com/robobenklein/openairplay/blob/master/main.py
         # LOG
+        self.SHARED_METHODS = shared_methods.SharedMethods(self)
         self.CONSOLE = self.create_console()
         self.tray_menu = QMenu()
         self.tray_icon.show()
@@ -340,3 +348,6 @@ class LauncherTrayMenu(QObject):
     #         for name, plg in self.plugins.items():
     #             self.CONSOLE.extra_namespace[name] = plg
 
+    # UTILS
+    def _execute_signal(self, callback):
+        callback()

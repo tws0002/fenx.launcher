@@ -1,10 +1,10 @@
 from Qt.QtWidgets import QApplication
 # work dir should be in directory fenx.studio
 
-from tray_menu import tray_menu_class
+from fenx.launcher import main
 
 if __name__ == '__main__':
     app = QApplication([])
     app.setQuitOnLastWindowClosed(False)
-    w = tray_menu_class.LauncherTrayMenu()
+    w = main.Launcher()
     app.exec_()
