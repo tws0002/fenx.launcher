@@ -1,0 +1,66 @@
+QMenu{
+    background-color: #444444;
+    color: whitesmoke;
+    border: 1px solid black;
+    icon-size: 32px;
+}
+QMenu:disabled{
+    color: gray;
+}
+
+QMenu#menulevel_0 {
+    background-color: #505050;
+}
+
+QMenu#menulevel_1 {
+    background-color: #5e5e5e;
+}
+
+QMenu::item
+{
+    /*padding: 12px 45px 12px 35px;*/
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 60px;
+    padding-right: 90px;
+    /*height: 18px;*/
+    /*font-size: 18px;*/
+    height: $MENU_ICON_FONT_SIZE(18px);
+    font-size: $MENU_ICON_FONT_SIZE(18px);
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+QMenu::icon {
+    icon-size: 36px;
+    margin-left: 30px;
+}
+QMenu::indicator {
+    width: 36px;
+    height: 36px;
+    icon-size: 36px;
+}
+/*QMenu::item*/
+/*{*/
+    /*padding-top: 10px;*/
+    /*padding-bottom: 10px;*/
+    /*padding-left: 40px;*/
+    /*padding-right: 90px;*/
+    /*height: $MENU_ICON_FONT_SIZE(18px);*/
+    /*font-size: $MENU_ICON_FONT_SIZE(18px);*/
+    /*margin-left: 15px;*/
+    /*margin-right: 15px;*/
+    /*margin-top: 2px;*/
+    /*margin-bottom: 2px;*/
+/*}*/
+
+QMenu::item:selected
+{
+    background: rgb(97, 97, 97);
+}
+QMenu#menulevel_1::item:selected
+{
+    background: rgb(117, 117, 117);
+}
+
