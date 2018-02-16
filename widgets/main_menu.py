@@ -42,17 +42,39 @@ class MainTrayMenu(Menu):
     """
     rebuildSignal = Signal()
 
-    def __init__(self, data, parent=None):
+    def __init__(self, root_menu, parent=None):
         super(MainTrayMenu, self).__init__()
         self.par = parent
-        self.data = data
+        self.root_menu = root_menu
+        self.__to_parent = []
         self.generate_menu()
         self._apply_style()
 
     def generate_menu(self):
         # clear menu
-        # print self.data
-        self.generate(self.data, self)
+        self.build_hierarchy()
+        self.generate(self.root_menu, self)
+
+    def build_hierarchy(self):
+        to_parent = []
+        for elem in self.root_menu.actions:
+            if elem.parent:
+                to_parent.append(self.root_menu.actions.pop(self.root_menu.actions.index(elem)))
+        def parent_item(item, menu):
+            for elem in menu:
+                if elem.type == SubMenu.type:
+                    if elem.name == item.parent:
+                        elem.actions.append(item)
+                        return
+                    else:
+                        res = parent_item(item, elem)
+                        if not res:
+                            return
+            return item
+        for it in to_parent:
+            it = parent_item(it, self.root_menu)
+            if it:
+                self.root_menu.actions.append(it)
 
     def generate(self, data, parent_menu=None, level=0):
         """
@@ -240,6 +262,7 @@ class MenuItem(object):
         self.ctrl_callback = ctrl_callback
         self.alt_callback = alt_callback
         self.enabled = enabled
+        self.parent=parent
         self.__os = os
 
     def __repr__(self):
@@ -267,6 +290,7 @@ class SubMenu(object):
         self.icon = icon
         self.actions = actions or []
         self.name = name
+        self.parent = parent
 
     def append(self, item, index=-1):
         if isinstance(item, list):
@@ -300,6 +324,7 @@ class SubMenu(object):
 
 class Divider(object):
     type = 'div'
+    parent = None
     def __init__(self):
         self.text = '---'
 
