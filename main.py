@@ -2,8 +2,12 @@ import inspect
 import logging as _logging
 import os, sys
 import shared_methods
-from PySide.QtCore import *
-from PySide.QtGui import *
+from Qt.QtGui import *
+from Qt.QtCore import *
+from Qt.QtWidgets import *
+if False:
+    from PySide.QtCore import *
+    from PySide.QtGui import *
 from fenx.config import config, settings
 from fenx.py_console import console
 from fenx.resources import get_icon
@@ -21,10 +25,12 @@ class Launcher(QObject):
     """
     NO_GUI = '-nogui' in sys.argv
     executeSignal = Signal(object)
+    sharedMethodRequestedSignal = Signal(object)
 
     def __init__(self):
         super(Launcher, self).__init__()
         self.executeSignal.connect(self._execute_signal)
+        self.sharedMethodRequestedSignal.connect(self._shared_method_requested)
         if self.NO_GUI:
             # todo: add no gui mode
             pass
@@ -97,10 +103,7 @@ class Launcher(QObject):
         Clear on exit
         """
         print 'Stop clients...'
-        try:
-            self._fenx_client._client.CLIENT._unbind_file()
-        except:
-            pass
+        # stop plugins
         self.tray_icon.hide()
         del self.tray_icon
         QApplication.quit()
@@ -119,7 +122,9 @@ class Launcher(QObject):
         """
         self.set_menu(main_menu.MainTrayMenu.waiting_menu('Waiting...'), 'tray_wait')
         data = self.generate_menu_data()
-        tray_menu = main_menu.MainTrayMenu(data, self)
+        tray_menu = main_menu.MainTrayMenu(data, self,
+                                           title=config.STUDIO_TITLE
+                                           )
         try:
             tray_menu.rebuildSignal.disconnect()
         except:
@@ -351,3 +356,38 @@ class Launcher(QObject):
     # UTILS
     def _execute_signal(self, callback):
         callback()
+
+    def _shared_method_requested(self, data):
+        if 'pong' in data:
+            self.CONSOLE.log('PONG')
+            return
+        if not data.get('method'):
+            raise Exception('Method not set')
+        callback = self._get_callback(data['method'])
+        if not callback:
+            raise Exception('Method not found')
+        return callback(*data.get('args', []), **data.get('kwargs', {}))
+
+    def _get_callback(self, path):
+        obj = None
+        elem = path.split('.')
+        if len(elem) == 1:
+            # self methods
+            obj = self.SHARED_METHODS
+            method = path
+        elif len(elem) == 2:
+            method = elem[1]
+            plg = self.plugins.get(elem[0])
+            if not plg:
+                raise Exception('Object not found')
+            obj = plg.SHARED_METHODS
+        else:
+            raise Exception('Wrong path')
+        if not obj:
+            return
+        return getattr(obj, method, None)
+
+    def log(self, *args, **kwargs):
+        msg = ' '.join([str(x) for x in args]).strip()
+        if msg:
+            self.CONSOLE.log(msg)

@@ -1,10 +1,14 @@
+from Qt.QtGui import *
+from Qt.QtCore import *
+from Qt.QtWidgets import *
+if False:
+    from PySide.QtCore import *
+    from PySide.QtGui import *
+from fenx.tools import setup_log
 import logging as _logging
 import os
 import re
-from PySide.QtCore import *
-from PySide.QtGui import *
 from fenx.config import config
-# todo: use Qt.py
 from fenx.resources import get_icon
 
 logger = _logging.getLogger(__name__)
@@ -36,16 +40,27 @@ class Menu(QMenu):
     #                 action.setText(self._old_text)
     #     super(Menu, self).keyReleaseEvent(event, *args, **kwargs)
 
+    def mousePressEvent(self, event):
+        # if event.button() == Qt.MouseButton.RightButton:
+        #     return
+            # menu = QMenu()
+            # menu.addAction(QAction('velue1', self))
+            # menu.addAction(QAction('velue2', self))
+            # menu.exec_(QCursor.pos())
+        super(Menu, self).mousePressEvent(event)
+
 class MainTrayMenu(Menu):
     """
     Data class for tray menu
     """
     rebuildSignal = Signal()
 
-    def __init__(self, root_menu, parent=None):
+    def __init__(self, root_menu, parent=None, title=None):
         super(MainTrayMenu, self).__init__()
         self.par = parent
         self.root_menu = root_menu
+        self.title = title
+        self.title_widget = self._title_separator = None
         self.__to_parent = []
         self.generate_menu()
         self._apply_style()
@@ -53,27 +68,49 @@ class MainTrayMenu(Menu):
     def generate_menu(self):
         # clear menu
         self.build_hierarchy()
+        # title item ===========================================
+        # if self.title:
+        #     self.title_widget = QLabel(self)
+        #     self.title_widget.setText(self.title)
+        #     self.title_widget.setAlignment(Qt.AlignLeft)
+        #     self._title_separator = QWidgetAction(self)
+        #     self._title_separator.setDefaultWidget(self.title_widget)
+        #     self._title_separator.setEnabled(False)
+        #     self.addAction(self._title_separator)
+        # a = QAction('title', self)
+        # a.setObjectName('topitem')
+        # self.addAction(a)
+        # ======================================================
         self.generate(self.root_menu, self)
 
     def build_hierarchy(self):
         to_parent = []
+        n = []
         for elem in self.root_menu.actions:
             if elem.parent:
-                to_parent.append(self.root_menu.actions.pop(self.root_menu.actions.index(elem)))
-        def parent_item(item, menu):
-            for elem in menu:
-                if elem.type == SubMenu.type:
-                    if elem.name == item.parent:
-                        elem.actions.append(item)
-                        return
-                    else:
-                        res = parent_item(item, elem)
-                        if not res:
-                            return
-            return item
-        for it in to_parent:
-            it = parent_item(it, self.root_menu)
-            if it:
+                to_parent.append(elem)
+            else:
+                n.append(elem)
+        self.root_menu.actions = n
+        def parent_items(items, menu):
+            for item in items:
+                for elem in menu:
+                    if elem.type == SubMenu.type:
+                        if elem.name == item.parent:
+                            elem.actions.append(items.pop(items.index(item)))
+                        else:
+                            items = parent_items(items, elem)
+            return items
+        if not to_parent:
+            return
+        count = len(to_parent)
+        while True:
+            to_parent = parent_items(to_parent, self.root_menu)
+            if not to_parent or len(to_parent) == count:
+                break
+            count = len(to_parent)
+        if to_parent:
+            for it in to_parent:
                 self.root_menu.actions.append(it)
 
     def generate(self, data, parent_menu=None, level=0):
@@ -297,13 +334,10 @@ class SubMenu(object):
             for it in item:
                 self.append(it, index)
             return
-        # if item.__class__.__name__ in [x.__name__ for x in MenuItem, SubMenu, Divider]:
         if index >= 0:
             self.actions.insert(index, item)
         else:
             self.actions.append(item)
-        # else:
-        #     raise Exception('Wrong item type: {}'.format(item))
 
     def __repr__(self):
         return '<SubMenu "%s" (%s)>' % (self.text or 'root', len(self.actions))

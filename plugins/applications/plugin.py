@@ -129,6 +129,8 @@ class Plugin(BasePlugin):
                             it.alt_callback = partial(self.start_app, app.app_name, app.version, 'cmd')
                         apps_menu.append(it)
                         continue
+        # apps_menu.actions = sorted(apps_menu.actions, key=lambda x: [x.type==main_menu.SubMenu.type, x.text])
+        apps_menu.actions = sorted(apps_menu.actions, key=lambda x:x.text)
         apps_menu.append(main_menu.Divider())
         apps_menu.append(main_menu.MenuItem('Refresh Apps', 'search2', self.refresh_action))
         ITEMS.append(apps_menu)

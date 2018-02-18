@@ -5,8 +5,7 @@ from Qt.QtCore import *
 from Qt.QtGui import *
 from Qt.QtWidgets import *
 from fenx.tools import qt_ui_loader
-
-login_dialog_UIs = qt_ui_loader.UiLoader.load('fenx.launcher.tray_menu.widgets.login_dialog_UIs')
+login_dialog_UIs = qt_ui_loader.UiLoader.load('fenx.launcher.widgets.login_dialog_UIs')
 if not login_dialog_UIs:
     raise Exception('Cant load UI module')
 from fenx.config import settings
