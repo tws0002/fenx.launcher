@@ -1,0 +1,13 @@
+{
+  "name": "launcher",
+  "title": "Pipeline Launcher",
+  "install_path": "fenx",
+  "required_modules": [
+    "config",
+    "tools",
+    "py_console",
+    "resources"
+  ],
+  "hidden": true,
+  "requirements": []
+}
