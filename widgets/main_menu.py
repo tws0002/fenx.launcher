@@ -49,6 +49,7 @@ class Menu(QMenu):
             # menu.exec_(QCursor.pos())
         super(Menu, self).mousePressEvent(event)
 
+
 class MainTrayMenu(Menu):
     """
     Data class for tray menu
@@ -62,6 +63,7 @@ class MainTrayMenu(Menu):
         self.title = title
         self.title_widget = self._title_separator = None
         self.__to_parent = []
+        self.title_action = self.title_label = None
         self.generate_menu()
         self._apply_style()
 
@@ -69,22 +71,18 @@ class MainTrayMenu(Menu):
         # clear menu
         self.build_hierarchy()
         # title item ===========================================
-        if self.title:
-            self.title_widget = QLabel(self)
-            self.title_widget.setText(self.title)
-            style = get_style('title')
-            if style:
-                self.title_widget.setStyleSheet(open(style).read())
-            else:
-                self.title_widget.setStyleSheet('color: red')
-            self.title_widget.setAlignment(Qt.AlignLeft)
-            self._title_separator = QWidgetAction(self)
-            self._title_separator.setDefaultWidget(self.title_widget)
-            # self._title_separator.setEnabled(False)
-            self.addAction(self._title_separator)
-        # a = QAction('title', self)
-        # a.setObjectName('topitem')
-        # self.addAction(a)
+        self.title_label = QLabel()
+        self.title_label.setText(self.title or '')
+        style = get_style('title')
+        if style:
+            self.title_label.setStyleSheet(open(style).read())
+        else:
+            self.title_label.setStyleSheet('color: red')
+        self.title_label.setAlignment(Qt.AlignLeft)
+        self.title_action = QWidgetAction(self)
+        self.title_action.setDefaultWidget(self.title_label)
+        self.addAction(self.title_action)
+
         # ======================================================
         self.generate(self.root_menu, self)
 

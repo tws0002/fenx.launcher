@@ -44,7 +44,7 @@ class Launcher(QObject):
         self.plugins = {}
         self.init_plugins()
         self.login_action()
-        self.update_menu()
+        # self.update_menu()
         if config._get('DEBUG') and self.CONSOLE:
             self.CONSOLE.show()
             # if self.plugins.get('local_server'):
@@ -120,10 +120,11 @@ class Launcher(QObject):
         """
         Main action to rebuild menu
         """
+        print('UPDATE MENU')
         self.set_menu(main_menu.MainTrayMenu.waiting_menu('Waiting...'), 'tray_wait')
         data = self.generate_menu_data()
         tray_menu = main_menu.MainTrayMenu(data, self,
-                                           title=config.STUDIO_TITLE
+                                           title=config.STUDIO_TITLE or 'STUDIO'
                                            )
         try:
             tray_menu.rebuildSignal.disconnect()
@@ -144,9 +145,12 @@ class Launcher(QObject):
         Rebuild action with re open menu
         """
         pos = self.tray_menu.pos()
-        self.update_menu()
-        if pos:
-            self.tray_menu.popup(pos)
+        def reop(p=None):
+
+            self.update_menu()
+            if p:
+                self.tray_menu.popup(p)
+        QTimer.singleShot(100, lambda :reop(pos))
 
     def generate_menu_data(self):
         """
