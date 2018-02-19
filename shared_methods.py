@@ -7,7 +7,7 @@ logger = _logging.getLogger(__name__)
 class SharedMethods(shared_methods.SharedMethods):
 
     def plugins(self, *args, **kwargs):
-        return self.PLUGIN.plugins.keys()
+        return list(self.PLUGIN.plugins.keys())
 
     def emit(self, event_name, *args, **kwargs):
         event.emit(event_name, *args, **kwargs)

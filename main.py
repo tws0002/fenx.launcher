@@ -1,19 +1,17 @@
 import inspect
 import logging as _logging
 import os, sys
-import shared_methods
-from Qt.QtGui import *
-from Qt.QtCore import *
-from Qt.QtWidgets import *
-if False:
-    from PySide.QtCore import *
-    from PySide.QtGui import *
+from . import shared_methods
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+Signal = pyqtSignal
 from fenx.config import config, settings
 from fenx.py_console import console
 from fenx.resources import get_icon
 from fenx.user import user
 from fenx.launcher import __version__ as version
-from widgets import main_menu
+from .widgets import main_menu
 
 logger = _logging.getLogger(__name__)
 
@@ -49,6 +47,8 @@ class Launcher(QObject):
         self.update_menu()
         if config._get('DEBUG') and self.CONSOLE:
             self.CONSOLE.show()
+            # if self.plugins.get('local_server'):
+            #     self.plugins['local_server'].open_local_server_panel()
 
     def create_console(self):
         frm = None
@@ -102,7 +102,7 @@ class Launcher(QObject):
         """
         Clear on exit
         """
-        print 'Stop clients...'
+        print('Stop clients...')
         # stop plugins
         self.tray_icon.hide()
         del self.tray_icon

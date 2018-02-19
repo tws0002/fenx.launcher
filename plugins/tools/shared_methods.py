@@ -9,6 +9,6 @@ class SharedMethods(shared_methods.SharedMethods):
         return True
 
     def ping(self):
-        print 'PONG'
+        print('PONG')
         self.PLUGIN.log('PONG')
         return 'PONG'

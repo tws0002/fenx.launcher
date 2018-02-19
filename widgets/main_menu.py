@@ -1,10 +1,10 @@
-from Qt.QtGui import *
-from Qt.QtCore import *
-from Qt.QtWidgets import *
-if False:
-    from PySide.QtCore import *
-    from PySide.QtGui import *
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+Signal = pyqtSignal
 from fenx.tools import setup_log
+from fenx.resources import get_style
+from fenx.resources import qstyle_util
 import logging as _logging
 import os
 import re
@@ -69,14 +69,19 @@ class MainTrayMenu(Menu):
         # clear menu
         self.build_hierarchy()
         # title item ===========================================
-        # if self.title:
-        #     self.title_widget = QLabel(self)
-        #     self.title_widget.setText(self.title)
-        #     self.title_widget.setAlignment(Qt.AlignLeft)
-        #     self._title_separator = QWidgetAction(self)
-        #     self._title_separator.setDefaultWidget(self.title_widget)
-        #     self._title_separator.setEnabled(False)
-        #     self.addAction(self._title_separator)
+        if self.title:
+            self.title_widget = QLabel(self)
+            self.title_widget.setText(self.title)
+            style = get_style('title')
+            if style:
+                self.title_widget.setStyleSheet(open(style).read())
+            else:
+                self.title_widget.setStyleSheet('color: red')
+            self.title_widget.setAlignment(Qt.AlignLeft)
+            self._title_separator = QWidgetAction(self)
+            self._title_separator.setDefaultWidget(self.title_widget)
+            # self._title_separator.setEnabled(False)
+            self.addAction(self._title_separator)
         # a = QAction('title', self)
         # a.setObjectName('topitem')
         # self.addAction(a)
@@ -238,25 +243,29 @@ class MainTrayMenu(Menu):
         Apply stylesheet to main QMenu
         """
         self.setStyle(CustomMenuStyle())
-        css = os.path.join(os.path.dirname(__file__), 'menu.css')
+        # self.setStyle(menu_style)
+        # css = os.path.join(os.path.dirname(__file__), 'menu.css')
+        css = get_style('menu')
         style = ''
         if os.path.exists(css):
             # default style
             style += open(css).read()
-        custom_css = os.path.join(os.path.dirname(__file__), 'custom_menu.css')
+        # custom_css = os.path.join(os.path.dirname(__file__), 'custom_menu.css')
+        custom_css = get_style('custom_menu')
         if os.path.exists(custom_css):
             # custom style if exists
             style += open(custom_css).read()
         if style:
-            self.setStyleSheet(self.__expand_css_variables(style))
+            # self.setStyleSheet(self.__expand_css_variables(style))
+            self.setStyleSheet(qstyle_util._expand_css_variables(style))
         else:
             logger.warning('Style not found in %s' % css)
 
-    def __expand_css_variables(self, css):
-        # config._reload()
-        for f in re.finditer("(\$[A-Z_]+)(\(.*?\))", css):
-            css = css.replace(f.group(0), config._get(f.group(1).strip('$'), f.group(2).strip('(').strip(')')))
-        return css
+    # def __expand_css_variables(self, css):
+    #     # config._reload()
+    #     for f in re.finditer("(\$[A-Z_]+)(\(.*?\))", css):
+    #         css = css.replace(f.group(0), config._get(f.group(1).strip('$'), f.group(2).strip('(').strip(')')))
+    #     return css
 
     def create_shortcut(self, data):
         from fenx.studio import app_wrappers
@@ -277,7 +286,6 @@ class MainTrayMenu(Menu):
     # def keyPressEvent(self, *args, **kwargs):
     #     print 'PRESS'
     #     super(MainTrayMenu, self).keyPressEvent(*args, **kwargs)
-
 
 
 class MenuItem(object):
@@ -368,12 +376,14 @@ class Divider(object):
     def __str__(self):
         return self.__repr__()
 
-class CustomMenuStyle(QPlastiqueStyle):
+
+from PyQt5.QtWidgets import QProxyStyle
+class CustomMenuStyle(QProxyStyle):
     def __init__(self):
         super(CustomMenuStyle, self).__init__()
 
     def pixelMetric(self, metric, option,widget):
-        if metric == QStyle.PM_SmallIconSize:
+        if metric == QProxyStyle.PM_SmallIconSize:
             return config._get('MENU_ICON_SIZE', 16)
         else:
             return super(CustomMenuStyle, self).pixelMetric(metric, option, widget)

@@ -16,6 +16,10 @@
   "RESOURCE_ICON_PATH+":[
     "$CONFIG_FILE_DIR/icons"
   ],
+  "RESOURCE_STYLE_PATH+":[
+    "$CONFIG_FILE_DIR/widgets"
+  ],
+
   "include": [
     "$CONFIG_FILE_DIR/config.json",
     // add default plugins

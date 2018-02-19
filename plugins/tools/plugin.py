@@ -38,7 +38,6 @@ class Plugin(BasePlugin):
 
     def open_python_shell(self):
         from fenx.debug_tools import python_shell
-        reload(python_shell)
         python_shell._open_shell()
 
     def show_debug_panel(self):
@@ -47,7 +46,6 @@ class Plugin(BasePlugin):
         :return:
         """
         from fenx.debug_tools.debug_window import window
-        reload(window)
         self._debug_info_window = window.DebugWindow()
         self._debug_info_window.create_debug_data()
         self._debug_info_window.show()
@@ -58,7 +56,7 @@ class Plugin(BasePlugin):
         "Restart" action. Restart this app.
         :return:
         """
-        from PySide.QtCore import QProcess
+        from PyQt5.QtCore import QProcess
         import sys
         cmd = '%s %s' % (sys.executable, ' '.join(sys.argv))
         QProcess.startDetached(cmd)
