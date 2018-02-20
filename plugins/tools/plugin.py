@@ -3,7 +3,7 @@ from fenx.base_plugin.plugin import BasePlugin
 from fenx.config import config, settings
 from fenx.tools.utils import open_folder, open_text_file
 from fenx.launcher.widgets import main_menu
-import shared_methods
+from . import shared_methods
 
 
 class Plugin(BasePlugin):

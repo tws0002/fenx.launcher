@@ -33,6 +33,7 @@ class Launcher(QObject):
             # todo: add no gui mode
             pass
         self.tray_icon = QSystemTrayIcon(self)
+        self.tray_icon.setIcon(QIcon(get_icon('tray')))
         self.tray_icon.activated.connect(self.tray_icon_activated)
         self.set_normal()
         # https://github.com/robobenklein/openairplay/blob/master/main.py
@@ -121,6 +122,8 @@ class Launcher(QObject):
     def set_menu(self, menu, icon=None):
         self.tray_menu = menu
         self.tray_icon.setContextMenu(self.tray_menu)
+        normal_icon = get_icon(icon or 'tray')
+        print(normal_icon)
         self.tray_icon.setIcon(QIcon(get_icon(icon or 'tray')))
 
     def update_menu(self):

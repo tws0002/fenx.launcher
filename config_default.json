@@ -1,9 +1,9 @@
 {
   // icon name to file or new name
   "ICONS": {
-    "tray": "$CONFIG_FILE_DIR/icons/tray.png",
-    "tray_wait": "$CONFIG_FILE_DIR/icons/tray_wait.png",
-    "logo": "$CONFIG_FILE_DIR/icons/logo.png",
+//    "tray": "$CONFIG_FILE_DIR/icons/tray.png",
+//    "tray_wait": "$CONFIG_FILE_DIR/icons/tray_wait.png",
+//    "logo": "$CONFIG_FILE_DIR/icons/logo.png",
     // mod name to icon name
     "super": "star"
   },
