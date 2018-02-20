@@ -1,4 +1,4 @@
-import inspect
+import inspect, traceback
 import logging as _logging
 import os, sys
 from . import shared_methods
@@ -102,8 +102,15 @@ class Launcher(QObject):
         """
         Clear on exit
         """
-        print('Stop clients...')
+        logger.debug('Stop clients...')
         # stop plugins
+        for plg in self.plugins.values():
+            try:
+                plg.stop()
+            except Exception as e:
+                logger.error(str(e))
+                print(e)
+                traceback.print_exc()
         self.tray_icon.hide()
         del self.tray_icon
         QApplication.quit()
@@ -120,11 +127,10 @@ class Launcher(QObject):
         """
         Main action to rebuild menu
         """
-        print('UPDATE MENU')
         self.set_menu(main_menu.MainTrayMenu.waiting_menu('Waiting...'), 'tray_wait')
         data = self.generate_menu_data()
         tray_menu = main_menu.MainTrayMenu(data, self,
-                                           title=config.STUDIO_TITLE or 'STUDIO'
+                                           # title=config.STUDIO_TITLE or 'STUDIO'
                                            )
         try:
             tray_menu.rebuildSignal.disconnect()
@@ -214,7 +220,7 @@ class Launcher(QObject):
                 if not cls:
                     raise Exception('Login dialog class not found: {}'.format(dialog_class))
             else:
-                from widgets.login_dialog import LoginDialog as cls
+                from .widgets.login_dialog import LoginDialog as cls
             spec = inspect.getargspec(cls.__init__)
             defaults = dict(zip(spec.args[-len(spec.defaults):], spec.defaults))
             self._dial = cls(

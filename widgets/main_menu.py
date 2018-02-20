@@ -71,17 +71,17 @@ class MainTrayMenu(Menu):
         # clear menu
         self.build_hierarchy()
         # title item ===========================================
-        self.title_label = QLabel()
-        self.title_label.setText(self.title or '')
-        style = get_style('title')
-        if style:
-            self.title_label.setStyleSheet(open(style).read())
-        else:
-            self.title_label.setStyleSheet('color: red')
-        self.title_label.setAlignment(Qt.AlignLeft)
-        self.title_action = QWidgetAction(self)
-        self.title_action.setDefaultWidget(self.title_label)
-        self.addAction(self.title_action)
+        # self.title_label = QLabel()
+        # self.title_label.setText(self.title or '')
+        # style = get_style('title')
+        # if style:
+        #     self.title_label.setStyleSheet(open(style).read())
+        # else:
+        #     self.title_label.setStyleSheet('color: red')
+        # self.title_label.setAlignment(Qt.AlignLeft)
+        # self.title_action = QWidgetAction(self)
+        # self.title_action.setDefaultWidget(self.title_label)
+        # self.addAction(self.title_action)
 
         # ======================================================
         self.generate(self.root_menu, self)
@@ -103,6 +103,8 @@ class MainTrayMenu(Menu):
                             elem.actions.append(items.pop(items.index(item)))
                         else:
                             items = parent_items(items, elem)
+                    # elem.actions = sorted(elem.actions, key=lambda x: x.index)
+
             return items
         if not to_parent:
             return
@@ -115,6 +117,7 @@ class MainTrayMenu(Menu):
         if to_parent:
             for it in to_parent:
                 self.root_menu.actions.append(it)
+        # self.root_menu.actions = sorted(self.root_menu.actions, key=lambda x: x.index)
 
     def generate(self, data, parent_menu=None, level=0):
         """
@@ -287,6 +290,10 @@ class MainTrayMenu(Menu):
 
 
 class MenuItem(object):
+    class OS:
+        WINDOWS = 'nt'
+        LINUX = 'posix'
+
     type = 'item'
     def __init__(self,
                  text,
@@ -295,8 +302,10 @@ class MenuItem(object):
                  shift_callback=None,
                  ctrl_callback=None,
                  alt_callback=None,
-                 os=None, enabled=True,
+                 os=None,
+                 enabled=True,
                  parent=None,
+                 index=0,
                  *args):
         self.text = text
         self.icon = icon
@@ -306,6 +315,7 @@ class MenuItem(object):
         self.alt_callback = alt_callback
         self.enabled = enabled
         self.parent=parent
+        self.index=index
         self.__os = os
 
     def __repr__(self):
@@ -326,15 +336,25 @@ class MenuItem(object):
         return True
 
 
+class MenuItemWidget(object):
+    pass
+
 class SubMenu(object):
     type = 'menu'
-    def __init__(self, text, icon=None, actions=None, name='', parent=None):
+    def __init__(self, text, icon=None, actions=None, name='', parent=None, index=0):
         self.text = text
         self.icon = icon
         self.actions = actions or []
         self.name = name
         self.parent = parent
+        self.index = index
 
+    # def append(self, item):
+    #     if isinstance(item, list):
+    #         for it in item:
+    #             self.append(it)
+    #         return
+    #     self.actions.append(item)
     def append(self, item, index=-1):
         if isinstance(item, list):
             for it in item:
@@ -344,6 +364,10 @@ class SubMenu(object):
             self.actions.insert(index, item)
         else:
             self.actions.append(item)
+    #     self.sort()
+
+    def sort(self):
+        self.actions.sort(key=lambda x: [x.index, x.text])
 
     def __repr__(self):
         return '<SubMenu "%s" (%s)>' % (self.text or 'root', len(self.actions))
