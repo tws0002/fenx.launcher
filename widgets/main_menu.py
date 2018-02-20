@@ -71,6 +71,7 @@ class MainTrayMenu(Menu):
         # clear menu
         self.build_hierarchy()
         # title item ===========================================
+
         # self.title_label = QLabel()
         # self.title_label.setText(self.title or '')
         # style = get_style('title')
