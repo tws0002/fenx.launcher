@@ -123,8 +123,7 @@ class Launcher(QObject):
         self.tray_menu = menu
         self.tray_icon.setContextMenu(self.tray_menu)
         normal_icon = get_icon(icon or 'tray')
-        print(normal_icon)
-        self.tray_icon.setIcon(QIcon(get_icon(icon or 'tray')))
+        self.tray_icon.setIcon(QIcon(normal_icon))
 
     def update_menu(self):
         """
