@@ -47,7 +47,7 @@ class Launcher(QObject):
         self.login_action()
         if config._get('DEBUG') and self.CONSOLE:
             self.CONSOLE.show()
-            self.plugins['modules_manager'].open_manager()
+            # self.plugins['modules_manager'].open_manager()
             # from fenx.debug_tools.qt_test.window import show
             # self.tq = show()
             # if self.plugins.get('local_server'):
