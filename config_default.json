@@ -10,6 +10,7 @@
   // menu size
   "MENU_ICON_SIZE": 26,
   "MENU_ICON_FONT_SIZE": "18px",
+  "DEFAULT_STYLE": "main_style",
   // URL for HELP action
   "HELP_URL": "http://paulwinex.com",
   //  "LOGIN_DIALOG_CLASS": "fenx.launcher.tray_menu.widgets.login_dialog.LoginDialog",   // default dialog
@@ -17,10 +18,11 @@
     "$CONFIG_FILE_DIR/icons"
   ],
   "RESOURCE_STYLE_PATH+":[
-    "$CONFIG_FILE_DIR/widgets"
+    "$CONFIG_FILE_DIR/style"
   ],
 
   "include": [
+    "install.modules|config_default.json",
     "$CONFIG_FILE_DIR/config.json",
     // add default plugins
     "$CONFIG_FILE_DIR/plugins/applications/config_default.json",

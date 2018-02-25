@@ -7,5 +7,3 @@ _todo
 config.json
 config_*.json
 !config_default.json
-/scripteditor.cmd
-/icons/black/

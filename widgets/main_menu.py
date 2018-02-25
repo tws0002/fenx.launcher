@@ -247,21 +247,21 @@ class MainTrayMenu(Menu):
         self.setStyle(CustomMenuStyle())
         # self.setStyle(menu_style)
         # css = os.path.join(os.path.dirname(__file__), 'menu.css')
-        css = get_style('menu')
-        style = ''
-        if os.path.exists(css):
-            # default style
-            style += open(css).read()
-        # custom_css = os.path.join(os.path.dirname(__file__), 'custom_menu.css')
-        custom_css = get_style('custom_menu')
-        if os.path.exists(custom_css):
-            # custom style if exists
-            style += open(custom_css).read()
-        if style:
-            # self.setStyleSheet(self.__expand_css_variables(style))
-            self.setStyleSheet(qstyle_util._expand_css_variables(style))
-        else:
-            logger.warning('Style not found in %s' % css)
+        self.setStyleSheet(get_style('menu') + get_style('custom_menu'))
+        # style = ''
+        # if os.path.exists(css):
+        #     # default style
+        #     style += open(css).read()
+        # # custom_css = os.path.join(os.path.dirname(__file__), 'custom_menu.css')
+        # custom_css = get_style('custom_menu')
+        # if os.path.exists(custom_css):
+        #     # custom style if exists
+        #     style += open(custom_css).read()
+        # if style:
+        #     # self.setStyleSheet(self.__expand_css_variables(style))
+        #     self.setStyleSheet(qstyle_util._expand_css_variables(style))
+        # else:
+        #     logger.warning('Style not found in %s' % css)
 
     # def __expand_css_variables(self, css):
     #     # config._reload()

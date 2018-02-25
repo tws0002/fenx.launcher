@@ -3,6 +3,7 @@ from fenx.base_plugin.plugin import BasePlugin
 from fenx.config import config, settings
 from fenx.tools.utils import open_folder, open_text_file
 from fenx.launcher.widgets import main_menu
+from fenx.debug_tools.icon_list import window
 from . import shared_methods
 
 
@@ -17,8 +18,8 @@ class Plugin(BasePlugin):
 
     def menu_items(self):
         tools_menu = main_menu.SubMenu('Tools', 'settings', name=self.item_name)
-        tools_menu.append(main_menu.MenuItem('Update...', 'update2', self.main.not_implement))
-        tools_menu.append(main_menu.MenuItem('Wizards...', 'wizard', self.main.not_implement))
+        # tools_menu.append(main_menu.MenuItem('Update...', 'update2', self.main.not_implement))
+        # tools_menu.append(main_menu.MenuItem('Wizards...', 'wizard', self.main.not_implement))
         admmin_menu = main_menu.SubMenu('Admin', 'gears', name=self.item_name + '_admin')
         admmin_menu.append(main_menu.MenuItem('Pipeline Folder', 'folder_open', lambda: open_folder(config.PIPELINE_LOCATION)))
         admmin_menu.append(main_menu.MenuItem('Settings Folder', 'settings', lambda: open_folder(settings._root_dir)))
@@ -32,6 +33,7 @@ class Plugin(BasePlugin):
             dbg_menu.append(main_menu.MenuItem('Python Shell', 'python', self.open_python_shell, os=['nt']))
             dbg_menu.append(main_menu.MenuItem('Reload Menu', 'list', self.main.update_and_reopen))
             dbg_menu.append(main_menu.MenuItem('Restart', 'update', self.restart_action))
+            dbg_menu.append(main_menu.MenuItem('Icons', 'render', self.icon_list))
             tools_menu.append(dbg_menu)
         return tools_menu
 
@@ -60,3 +62,7 @@ class Plugin(BasePlugin):
         cmd = '%s %s' % (sys.executable, ' '.join(sys.argv))
         QProcess.startDetached(cmd)
         sys.exit()
+
+    def icon_list(self):
+        self.icons = window.IconList()
+        self.icons.show()

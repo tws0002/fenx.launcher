@@ -5,14 +5,13 @@ from . import shared_methods
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-Signal = pyqtSignal
 from fenx.config import config, settings
 from fenx.py_console import console
-from fenx.resources import get_icon
+from fenx.resources import get_icon, get_style
 from fenx.user import user
 from fenx.launcher import __version__ as version
 from .widgets import main_menu
-
+# from .style import style_rc
 logger = _logging.getLogger(__name__)
 
 
@@ -22,22 +21,23 @@ class Launcher(QObject):
     Run Help menu for details
     """
     NO_GUI = '-nogui' in sys.argv
-    executeSignal = Signal(object)
-    sharedMethodRequestedSignal = Signal(object)
+    executeSignal = pyqtSignal(object)
+    sharedMethodRequestedSignal = pyqtSignal(object)
 
-    def __init__(self):
+    def __init__(self, creation_event):
         super(Launcher, self).__init__()
         self.executeSignal.connect(self._execute_signal)
         self.sharedMethodRequestedSignal.connect(self._shared_method_requested)
         if self.NO_GUI:
+            print('NO GUI MODE')
             # todo: add no gui mode
             pass
+        creation_event.connect(self.apply_stylesheet)
         self.tray_icon = QSystemTrayIcon(self)
         self.tray_icon.setIcon(QIcon(get_icon('tray')))
         self.tray_icon.activated.connect(self.tray_icon_activated)
         self.set_normal()
         # https://github.com/robobenklein/openairplay/blob/master/main.py
-        # LOG
         self.SHARED_METHODS = shared_methods.SharedMethods(self)
         self.CONSOLE = self.create_console()
         self.tray_menu = QMenu()
@@ -45,11 +45,31 @@ class Launcher(QObject):
         self.plugins = {}
         self.init_plugins()
         self.login_action()
-        # self.update_menu()
         if config._get('DEBUG') and self.CONSOLE:
             self.CONSOLE.show()
+            self.plugins['modules_manager'].open_manager()
+            # from fenx.debug_tools.qt_test.window import show
+            # self.tq = show()
             # if self.plugins.get('local_server'):
             #     self.plugins['local_server'].open_local_server_panel()
+
+    def apply_stylesheet(self, widget: QWidget):
+        # icon
+        widget.setWindowIcon(QIcon(get_icon('fenx')))
+        # style
+        st = get_style(config.DEFAULT_STYLE)
+        if not st:
+            return
+        widget.setStyleSheet(st)
+        # icons size
+        iconsize = '''QTreeView:item,
+QAbstractItemView:item
+{
+    height: %spx;
+}'''
+        for ch in widget.findChildren(QListView) + widget.findChildren(QTreeView):
+            sz = max([ch.iconSize().height(), ch.iconSize().width()])
+            ch.setStyleSheet(iconsize % sz)
 
     def create_console(self):
         frm = None
