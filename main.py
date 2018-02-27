@@ -11,7 +11,7 @@ from fenx.resources import get_icon, get_style
 from fenx.user import user
 from fenx.launcher import __version__ as version
 from .widgets import main_menu
-# from .style import style_rc
+from fenx.studio.events import event
 logger = _logging.getLogger(__name__)
 
 
@@ -52,6 +52,7 @@ class Launcher(QObject):
             # self.tq = show()
             # if self.plugins.get('local_server'):
             #     self.plugins['local_server'].open_local_server_panel()
+        event.emit('on_launcher_started')
 
     def apply_stylesheet(self, widget: QWidget):
         # icon
@@ -123,6 +124,7 @@ QAbstractItemView:item
         """
         Clear on exit
         """
+        event.emit('on_before_launcher_closed')
         logger.debug('Stop clients...')
         # stop plugins
         for plg in self.plugins.values():
@@ -134,8 +136,8 @@ QAbstractItemView:item
                 traceback.print_exc()
         self.tray_icon.hide()
         del self.tray_icon
+        event.emit('on_launcher_closed')
         QApplication.quit()
-        # sys.exit()
 
     # MENUS
 
