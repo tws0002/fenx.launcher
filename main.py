@@ -52,7 +52,7 @@ class Launcher(QObject):
             # self.tq = show()
             # if self.plugins.get('local_server'):
             #     self.plugins['local_server'].open_local_server_panel()
-        event.emit('on_launcher_started')
+        event.emit('on_launcher_started', self)
 
     def apply_stylesheet(self, widget: QWidget):
         # icon
@@ -124,7 +124,7 @@ QAbstractItemView:item
         """
         Clear on exit
         """
-        event.emit('on_before_launcher_closed')
+        event.emit('on_before_launcher_closed', self)
         logger.debug('Stop clients...')
         # stop plugins
         for plg in self.plugins.values():
