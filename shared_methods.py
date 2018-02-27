@@ -1,10 +1,10 @@
-from fenx.base_plugin import shared_methods
+from fenx.base_plugin.shared_methods import SharedMethods as BaseSharedMethods
 import logging as _logging
 from fenx.studio.events import event
 logger = _logging.getLogger(__name__)
 
 
-class SharedMethods(shared_methods.SharedMethods):
+class SharedMethods(BaseSharedMethods):
 
     def plugins(self, *args, **kwargs):
         return list(self.PLUGIN.plugins.keys())
