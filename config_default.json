@@ -22,7 +22,7 @@
   ],
 
   "include": [
-    "install.modules|config_default.json",
+//    "install.modules|config_default.json",
     "$CONFIG_FILE_DIR/config.json",
     // add default plugins
     "$CONFIG_FILE_DIR/plugins/applications/config_default.json",

@@ -27,7 +27,7 @@ class Launcher(QObject):
     def __init__(self, creation_event):
         super(Launcher, self).__init__()
         self.executeSignal.connect(self._execute_signal)
-        self.sharedMethodRequestedSignal.connect(self._shared_method_requested)
+        self.sharedMethodRequestedSignal.connect(self._shared_methods_signal)
         if self.NO_GUI:
             print('NO GUI MODE')
             # todo: add no gui mode
@@ -54,7 +54,7 @@ class Launcher(QObject):
             #     self.plugins['local_server'].open_local_server_panel()
         event.emit('on_launcher_started', self)
 
-    def apply_stylesheet(self, widget: QWidget):
+    def apply_stylesheet(self, widget):
         # icon
         widget.setWindowIcon(QIcon(get_icon('fenx')))
         # style
@@ -118,7 +118,7 @@ QAbstractItemView:item
         :param msg: str
         """
         self.CONSOLE.log(msg)
-        self.tray_icon.showMessage('Pipeline Menu v%s' % version, msg)
+        self.tray_icon.showMessage('Workspace Menu v%s' % version, msg)
 
     def exitEvent(self):
         """
@@ -289,107 +289,16 @@ QAbstractItemView:item
         if self.CONSOLE:
             for name, plg in self.plugins.items():
                 self.CONSOLE.extra_namespace[name] = plg
-    #     import imp
-    #     import inspect
-    #     from fenx.launcher.plugins._base_plugin import Plugin
-    #     plugin_dirs = []
-    #     # default plugins
-    #     default_plugins_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'plugins')
-    #     plugin_dirs.append(default_plugins_dir)
-    #     # extra plugins
-    #     extra_dirs = config._get('PIPELINE_PLUGINS_PATH')
-    #     if isinstance(extra_dirs, list):
-    #         for extra_path in extra_dirs:
-    #             if os.path.isdir(extra_path):
-    #                 plugin_dirs.append(extra_path)
-    #     plugins = []
-    #     _skipped = []
-    #     enabled_plugins = config._get('LAUNCHER_ENABLED_PLUGINS', [])
-    #     for plugins_dir in plugin_dirs:
-    #         plugins_files = [x for x in os.listdir(plugins_dir) if not x.startswith('_')]
-    #         plugin_configs = []
-    #         for f in plugins_files:
-    #             full_path = os.path.join(plugins_dir, f)
-    #
-    #             if os.path.isdir(full_path):
-    #                 init = os.path.join(full_path,  '__init__.py')
-    #                 if not os.path.exists(init):
-    #                     continue
-    #                 # add configs
-    #                 for c_name in config._config_default_file_names:
-    #                     conf = os.path.join(plugins_dir, f, c_name)
-    #                     if os.path.exists(conf):
-    #                         plugin_configs.append(conf)
-    #             else:
-    #                 if not os.path.splitext(full_path)[-1] == '.py':
-    #                     continue
-    #
-    #             name = os.path.splitext(os.path.basename(full_path))[0]
-    #             if name == '__init__':
-    #                 name = f
-    #             import fenx.launcher.plugins
-    #             # temporary apply config
-    #             config._add_temporary_files(plugin_configs)
-    #             # todo: fix for Python3, replace imp library
-    #             if os.path.isfile(full_path):
-    #                 # is module
-    #                 try:
-    #                     mod = imp.load_source(fenx.launcher.plugins.__name__+'.'+name, full_path)
-    #                 except Exception as e:
-    #                     logger.error('Error: {}'.format(e))
-    #                     traceback.print_exc()
-    #                     if self.CONSOLE:
-    #                         self.CONSOLE.log('Error load launcher plugin "{}": {}'.format(name, str(e)))
-    #                     config._clear_temporary_files()
-    #                     continue
-    #             else:
-    #                 # is package
-    #                 if not os.path.dirname(full_path) in sys.path and not os.path.exists(os.path.join(os.path.dirname(full_path), '__init__.py')):
-    #                     sys.path.append(os.path.dirname(full_path))
-    #                 try:
-    #                     mod = imp.load_package(fenx.launcher.plugins.__name__+'.'+name, full_path)
-    #                 except Exception as e:
-    #                     logger.error('Error: {}'.format(e))
-    #                     if self.CONSOLE:
-    #                         traceback.print_exc()
-    #                         self.CONSOLE.log('Error load launcher plugin "{}": {}'.format(name, str(e)))
-    #                     config._clear_temporary_files()
-    #                     continue
-    #
-    #             for key in mod.__dict__.keys():
-    #                 cls = mod.__dict__[key]
-    #                 if inspect.isclass(cls) and issubclass(cls, mod.__dict__.get(Plugin.__name__) or Plugin) and not cls.__name__ == Plugin.__name__ and hasattr(cls, 'name'):
-    #                     plugin_name = cls.name
-    #                     if not plugin_name in enabled_plugins:
-    #                         # skip plugins
-    #                         _skipped.append(os.path.splitext(f)[0])
-    #                         config._clear_temporary_files()
-    #                     else:
-    #                         # accept plugin
-    #                         plugins.append(cls)
-    #                         config._accept_temporary_files()
-    #             plugin_configs = []
-    #     if _skipped:
-    #         logger.debug('Plugins {} found but not enabled. Use LAUNCHER_ENABLED_PLUGINS value in config to unable it'.format(', '.join(list(set(_skipped)))))
-    #     if not plugins:
-    #         return
-    #     self.plugins = {x.name: x(self) for x in plugins}
-    #     # auth model
-    #     if config._get('AUTH_PLUGIN'):
-    #         if not config.AUTH_PLUGIN in self.plugins.keys():
-    #             logger.error('Error: Auth plugin not in loaded plugin list')
-    #         else:
-    #             self.AUTH = self.plugins.get(config.AUTH_PLUGIN)
-    #     # emit events
-    #     map(lambda plug: event.emit('plugin_loaded', plug), self.plugins.values())
-    #     # add plugins to console namespace
-    #     if self.CONSOLE:
-    #         for name, plg in self.plugins.items():
-    #             self.CONSOLE.extra_namespace[name] = plg
 
-    # UTILS
     def _execute_signal(self, callback):
         callback()
+
+    # SHARED METHODS
+    def _shared_methods_signal(self, data):
+        try:
+            self._shared_method_requested(data)
+        except Exception as e:
+            logger.error('Shared Method Error: {}'.format(e))
 
     def _shared_method_requested(self, data):
         if 'pong' in data:
@@ -413,7 +322,7 @@ QAbstractItemView:item
             method = elem[1]
             plg = self.plugins.get(elem[0])
             if not plg:
-                raise Exception('Object not found')
+                raise Exception('Object {} not found'.format(elem[0]))
             obj = plg.SHARED_METHODS
         else:
             raise Exception('Wrong path')

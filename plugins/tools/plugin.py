@@ -21,7 +21,7 @@ class Plugin(BasePlugin):
         # tools_menu.append(main_menu.MenuItem('Update...', 'update2', self.main.not_implement))
         # tools_menu.append(main_menu.MenuItem('Wizards...', 'wizard', self.main.not_implement))
         admmin_menu = main_menu.SubMenu('Admin', 'gears', name=self.item_name + '_admin')
-        admmin_menu.append(main_menu.MenuItem('Pipeline Folder', 'folder_open', lambda: open_folder(config.PIPELINE_LOCATION)))
+        admmin_menu.append(main_menu.MenuItem('Workspace Folder', 'folder_open', lambda: open_folder(config.PIPELINE_LOCATION)))
         admmin_menu.append(main_menu.MenuItem('Settings Folder', 'settings', lambda: open_folder(settings._root_dir)))
         admmin_menu.append(main_menu.MenuItem('Config File', 'document', lambda :open_text_file(os.path.join(os.getenv('STUDIO_LOCATION', ''), 'config.json'))))
         tools_menu.append(admmin_menu)
@@ -57,11 +57,13 @@ class Plugin(BasePlugin):
         "Restart" action. Restart this app.
         :return:
         """
-        from PyQt5.QtCore import QProcess
-        import sys
-        cmd = '%s %s' % (sys.executable, ' '.join(sys.argv))
-        QProcess.startDetached(cmd)
-        sys.exit()
+        from fenx.tools import app
+        app.restart()
+        # from PyQt5.QtCore import QProcess
+        # import sys
+        # cmd = '%s %s' % (sys.executable, ' '.join(sys.argv))
+        # QProcess.startDetached(cmd)
+        # sys.exit()
 
     def icon_list(self):
         self.icons = window.IconList()

@@ -205,7 +205,7 @@ class Plugin(BasePlugin):
                                         title=' '.join([app.name, mode.title()]),
                                         destination_dir=shortcuts.DIR.DESKTOP,
                                         icon=ico,
-                                        description='Pipeline start for {}'.format(app.name.title()),
+                                        description='Workspace start for {}'.format(app.name.title()),
                                         workdir=app.work_dir() or os.getenv('STUDIO_LOCATION'),
                                         kwargs=dict(
                                             app=app.app_name,

@@ -1,4 +1,4 @@
-# Studio Pipeline Starter
+# Studio Workspace Starter
 
 Use this starter to start any application on studio, farm or freelancer workstation.
 
