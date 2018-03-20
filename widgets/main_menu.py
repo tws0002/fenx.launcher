@@ -129,6 +129,11 @@ class MainTrayMenu(Menu):
         """
         parent_menu = parent_menu or self
         for item in data:
+            if isinstance(item, QAction):
+                item.setData(dict(item=item))
+                # parent_menu.addAction(item)
+                parent_menu.insertAction(item, parent_menu.actions()[0])
+                continue
             if item is None:  # empty
                 a = QAction('Empty', parent_menu)
                 a.setDisabled(True)
