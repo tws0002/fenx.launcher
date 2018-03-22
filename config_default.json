@@ -11,7 +11,7 @@
   "MENU_ICON_FONT_SIZE": "18px",
   "DEFAULT_STYLE": "main_style",
   // URL for HELP action
-  "HELP_URL": "http://docs.fenxpieline.com",
+  "HELP_URL": "http://docs.fenxpipeline.com",
   //  "LOGIN_DIALOG_CLASS": "fenx.launcher.tray_menu.widgets.login_dialog.LoginDialog",   // default dialog
   "RESOURCE_ICON_PATH+":[
     "$CONFIG_FILE_DIR/icons"

@@ -21,7 +21,7 @@ class Plugin(BasePlugin):
         # tools_menu.append(main_menu.MenuItem('Update...', 'update2', self.main.not_implement))
         # tools_menu.append(main_menu.MenuItem('Wizards...', 'wizard', self.main.not_implement))
         admmin_menu = main_menu.SubMenu('Admin', 'gears', name=self.item_name + '_admin')
-        admmin_menu.append(main_menu.MenuItem('Workspace Folder', 'folder_open', lambda: open_folder(config.PIPELINE_LOCATION)))
+        admmin_menu.append(main_menu.MenuItem('Workspace Folder', 'folder_open', lambda: open_folder(config.WORKSPACE_LOCATION)))
         admmin_menu.append(main_menu.MenuItem('Settings Folder', 'settings', lambda: open_folder(settings._root_dir)))
         admmin_menu.append(main_menu.MenuItem('Config File', 'document', lambda :open_text_file(os.path.join(os.getenv('STUDIO_LOCATION', ''), 'config.json'))))
         tools_menu.append(admmin_menu)
