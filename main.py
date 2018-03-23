@@ -151,6 +151,9 @@ QAbstractItemView:item
         """
         Main action to rebuild menu
         """
+        QTimer.singleShot(100, self.__update_menu)
+
+    def __update_menu(self):
         self.set_menu(main_menu.MainTrayMenu.waiting_menu('Waiting...'), 'tray_wait')
         data = self.generate_menu_data()
         tray_menu = main_menu.MainTrayMenu(data, self,
