@@ -6,7 +6,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from fenx.config import config, settings
-from fenx.py_console import console
+from fenx.dialogs.py_console import console
 from fenx.resources import get_icon, get_style
 from fenx.user import user
 from fenx.launcher import __version__ as version
@@ -33,6 +33,7 @@ class Launcher(QObject):
             # todo: add no gui mode
             pass
         creation_event.connect(self.apply_stylesheet)
+        __import__('__main__').__dict__['_main_launcher_object'] = self
         self.tray_icon = QSystemTrayIcon(self)
         self.tray_icon.setIcon(QIcon(get_icon('tray')))
         self.tray_icon.activated.connect(self.tray_icon_activated)
@@ -45,13 +46,8 @@ class Launcher(QObject):
         self.plugins = {}
         self.init_plugins()
         self.login_action()
-        if config._get('DEBUG') and self.CONSOLE:
+        if (config._get('DEBUG') or os.getenv('DEBUGCONSOLE') == '1') and self.CONSOLE:
             self.CONSOLE.show()
-            # self.plugins['modules_manager'].open_manager()
-            # from fenx.debug_tools.qt_test.window import show
-            # self.tq = show()
-            # if self.plugins.get('local_server'):
-            #     self.plugins['local_server'].open_local_server_panel()
         event.emit('on_launcher_started', self)
 
     def apply_stylesheet(self, widget):
@@ -80,7 +76,7 @@ QAbstractItemView:item
         # frm.add_rule('Process', [re.compile(r"ws\w+Signal\s>>.*")], italic=True, color='#5D9DCA')
         # frm.add_rule('Process', [re.compile(r"localServer\w+Signal\s>>.*")], italic=True, color='#87ADA2')
         log_file = os.path.join(settings._root_dir, '.%sstarter_console.log' % (
-        (config._get('STUDIO_NAME', '') + '_') if config._get('STUDIO_NAME') else ''))
+        (config._get('WORKSPACE_NAME', '') + '_') if config._get('WORKSPACE_NAME') else ''))
         return console.Console(self, formatter=frm, log_file=log_file,
                                      load_settings_callback=lambda: settings.CONSOLE_PREFS,
                                      save_settings_callback=lambda x: settings._set_value('CONSOLE_PREFS',x)
@@ -108,7 +104,6 @@ QAbstractItemView:item
             # open menu on left click
             self.tray_menu.popup(QCursor.pos())
         else:
-            # todo: maybe open menu?
             self.tray_menu.popup(QCursor.pos())
             # self.exitEvent()
 
@@ -147,17 +142,20 @@ QAbstractItemView:item
         normal_icon = get_icon(icon or 'tray')
         self.tray_icon.setIcon(QIcon(normal_icon))
 
-    def update_menu(self):
+    def update_menu(self, differed=True):
         """
         Main action to rebuild menu
         """
-        QTimer.singleShot(100, self.__update_menu)
+        if differed:
+            QTimer.singleShot(100, self.__update_menu)
+        else:
+            self.__update_menu()
 
     def __update_menu(self):
         self.set_menu(main_menu.MainTrayMenu.waiting_menu('Waiting...'), 'tray_wait')
         data = self.generate_menu_data()
         tray_menu = main_menu.MainTrayMenu(data, self,
-                                           # title=config.STUDIO_TITLE or 'STUDIO'
+                                           # title=config.WORKSPACE_TITLE or 'STUDIO'
                                            )
         try:
             tray_menu.rebuildSignal.disconnect()
@@ -180,7 +178,7 @@ QAbstractItemView:item
         pos = self.tray_menu.pos()
         def reop(p=None):
 
-            self.update_menu()
+            self.update_menu(differed=False)
             if p:
                 self.tray_menu.popup(p)
         QTimer.singleShot(100, lambda :reop(pos))
@@ -236,9 +234,10 @@ QAbstractItemView:item
         """
         "Login" action. Open login dialog if need
         """
-        if self._is_logged_in():
-            self.update_menu()
-            return
+        # if self._is_logged_in():
+        #     self.update_menu()
+        #     return
+        self.update_menu()
         if user.need_to_authorization:
             dialog_class = config._get('LOGIN_DIALOG_CLASS')
             if dialog_class:
@@ -248,7 +247,7 @@ QAbstractItemView:item
                     raise Exception('Login dialog class not found: {}'.format(dialog_class))
             else:
                 from .widgets.login_dialog import LoginDialog as cls
-            spec = inspect.getargspec(cls.__init__)
+            spec = inspect.getfullargspec(cls.__init__)
             defaults = dict(zip(spec.args[-len(spec.defaults):], spec.defaults))
             self._dial = cls(
                 add_register_btn=bool(config._get('REGISTER_URL')),

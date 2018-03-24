@@ -7,7 +7,6 @@ from fenx.resources import get_style
 from fenx.resources import qstyle_util
 import logging as _logging
 import os
-import re
 from fenx.config import config
 from fenx.resources import get_icon
 
@@ -199,41 +198,6 @@ class MainTrayMenu(Menu):
         else:
             logger.error('callback is not callable')
         return
-        # if item.is_resent:
-        #     if QApplication.keyboardModifiers() == Qt.ShiftModifier:
-        #         # remove from resent
-        #         last = settings.RECENTLY_STARTED or []
-        #         data = item.resent_data()
-        #         if data in last:
-        #             last.remove(data)
-        #             settings.RECENTLY_STARTED = last[:config.RESENTLY_APPLICATIONS]
-        #         self.rebuildSignal.emit()
-        #     else:
-        #         # start from resent
-        #         if item.callback:
-        #             item.callback()
-        #     return
-        # if item.resent_data():
-        #     if QApplication.keyboardModifiers() == Qt.ShiftModifier:
-        #         # add to resent
-        #         if item.add_to_resent:
-        #             data = item.resent_data()
-        #             last = settings.RECENTLY_STARTED or []
-        #             if data in last:
-        #                 # remove is exists
-        #                 last.remove(data)
-        #             last.insert(0, item.resent_data())
-        #             settings.RECENTLY_STARTED = last[:config.RESENTLY_APPLICATIONS]
-        #             self.rebuildSignal.emit()
-        #     elif QApplication.keyboardModifiers() == Qt.ControlModifier:
-        #         # create shortcut
-        #         self.create_shortcut(item.resent_data())
-        #     else:
-        #         if item.callback:
-        #             item.callback()
-        # else:
-        #     if item.callback:
-        #         item.callback()
 
     @classmethod
     def create_icon(cls, path):
@@ -253,30 +217,10 @@ class MainTrayMenu(Menu):
         # self.setStyle(menu_style)
         # css = os.path.join(os.path.dirname(__file__), 'menu.css')
         self.setStyleSheet(get_style('menu') + get_style('custom_menu'))
-        # style = ''
-        # if os.path.exists(css):
-        #     # default style
-        #     style += open(css).read()
-        # # custom_css = os.path.join(os.path.dirname(__file__), 'custom_menu.css')
-        # custom_css = get_style('custom_menu')
-        # if os.path.exists(custom_css):
-        #     # custom style if exists
-        #     style += open(custom_css).read()
-        # if style:
-        #     # self.setStyleSheet(self.__expand_css_variables(style))
-        #     self.setStyleSheet(qstyle_util._expand_css_variables(style))
-        # else:
-        #     logger.warning('Style not found in %s' % css)
-
-    # def __expand_css_variables(self, css):
-    #     # config._reload()
-    #     for f in re.finditer("(\$[A-Z_]+)(\(.*?\))", css):
-    #         css = css.replace(f.group(0), config._get(f.group(1).strip('$'), f.group(2).strip('(').strip(')')))
-    #     return css
 
     def create_shortcut(self, data):
-        from fenx.studio import app_wrappers
-        app = app_wrappers.get_app(data.get('app'), data.get('version'))
+        from fenx.applications import wrapper
+        app = wrapper.get_app(data.get('app'), data.get('version'))
         if app:
             app.create_shortcut(data.get('mode'))
 
@@ -301,6 +245,7 @@ class MenuItem(object):
         LINUX = 'posix'
 
     type = 'item'
+
     def __init__(self,
                  text,
                  icon=None,
@@ -320,8 +265,8 @@ class MenuItem(object):
         self.ctrl_callback = ctrl_callback
         self.alt_callback = alt_callback
         self.enabled = enabled
-        self.parent=parent
-        self.index=index
+        self.parent = parent
+        self.index  =index
         self.__os = os
 
     def __repr__(self):
@@ -345,8 +290,11 @@ class MenuItem(object):
 class MenuItemWidget(object):
     pass
 
+
 class SubMenu(object):
+
     type = 'menu'
+
     def __init__(self, text, icon=None, actions=None, name='', parent=None, index=0):
         self.text = text
         self.icon = icon
@@ -355,12 +303,6 @@ class SubMenu(object):
         self.parent = parent
         self.index = index
 
-    # def append(self, item):
-    #     if isinstance(item, list):
-    #         for it in item:
-    #             self.append(it)
-    #         return
-    #     self.actions.append(item)
     def append(self, item, index=-1):
         if isinstance(item, list):
             for it in item:
@@ -395,6 +337,7 @@ class SubMenu(object):
 class Divider(object):
     type = 'div'
     parent = None
+
     def __init__(self):
         self.text = '---'
 
@@ -406,6 +349,7 @@ class Divider(object):
 
 
 from PyQt5.QtWidgets import QProxyStyle
+
 class CustomMenuStyle(QProxyStyle):
     def __init__(self):
         super(CustomMenuStyle, self).__init__()

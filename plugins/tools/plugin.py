@@ -1,4 +1,4 @@
-import os
+import os, sys
 from fenx.base_plugin.plugin import BasePlugin
 from fenx.config import config, settings
 from fenx.tools.utils import open_folder, open_text_file
@@ -24,15 +24,15 @@ class Plugin(BasePlugin):
         admmin_menu.append(main_menu.MenuItem('Workspace Folder', 'folder_open', lambda: open_folder(config.WORKSPACE_LOCATION)))
         admmin_menu.append(main_menu.MenuItem('Settings Folder', 'settings', lambda: open_folder(settings._root_dir)))
         admmin_menu.append(main_menu.MenuItem('Config File', 'document', lambda :open_text_file(os.path.join(os.getenv('STUDIO_LOCATION', ''), 'config.json'))))
+        admmin_menu.append(main_menu.MenuItem('Restart', 'update', self.restart_action))
         tools_menu.append(admmin_menu)
-        if config._get('DEBUG'):
+        if config._get('DEBUG') or os.getenv('DEBUGCONSOLE') == '1':
             dbg_menu = main_menu.SubMenu('Debug', 'debug', name=self.item_name + '_debug')
             dbg_menu.append(main_menu.MenuItem('Debug Info', 'nav', self.show_debug_panel))
             dbg_menu.append(main_menu.MenuItem('Console', 'nav', lambda *a: [self.main.CONSOLE.show(), self.main.CONSOLE.activateWindow()]))
             dbg_menu.append(main_menu.MenuItem('Shell', 'console'))
             dbg_menu.append(main_menu.MenuItem('Python Shell', 'python', self.open_python_shell, os=['nt']))
             dbg_menu.append(main_menu.MenuItem('Reload Menu', 'list', self.main.update_and_reopen))
-            dbg_menu.append(main_menu.MenuItem('Restart', 'update', self.restart_action))
             dbg_menu.append(main_menu.MenuItem('Icons', 'render', self.icon_list))
             tools_menu.append(dbg_menu)
         return tools_menu
@@ -46,7 +46,8 @@ class Plugin(BasePlugin):
         "Debug Info" action. Open debug window
         :return:
         """
-        from fenx.debug_tools.debug_window import window
+        # from fenx.debug_tools.debug_window import window
+        from fenx.dialogs.debug_window import window
         self._debug_info_window = window.DebugWindow()
         self._debug_info_window.create_debug_data()
         self._debug_info_window.show()
