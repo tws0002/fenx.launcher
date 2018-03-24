@@ -3,7 +3,7 @@ from fenx.base_plugin.plugin import BasePlugin
 from fenx.config import config, settings
 from fenx.tools.utils import open_folder, open_text_file
 from fenx.launcher.widgets import main_menu
-from fenx.debug_tools.icon_list import window
+from fenx.dialogs.icon_list import window
 from . import shared_methods
 
 
@@ -28,7 +28,7 @@ class Plugin(BasePlugin):
         tools_menu.append(admmin_menu)
         if config._get('DEBUG') or os.getenv('DEBUGCONSOLE') == '1':
             dbg_menu = main_menu.SubMenu('Debug', 'debug', name=self.item_name + '_debug')
-            dbg_menu.append(main_menu.MenuItem('Debug Info', 'nav', self.show_debug_panel))
+            dbg_menu.append(main_menu.MenuItem('Debug Window', 'nav', self.show_debug_panel))
             dbg_menu.append(main_menu.MenuItem('Console', 'nav', lambda *a: [self.main.CONSOLE.show(), self.main.CONSOLE.activateWindow()]))
             dbg_menu.append(main_menu.MenuItem('Shell', 'console'))
             dbg_menu.append(main_menu.MenuItem('Python Shell', 'python', self.open_python_shell, os=['nt']))
