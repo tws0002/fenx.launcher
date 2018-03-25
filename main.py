@@ -1,6 +1,8 @@
 import inspect, traceback
 import logging as _logging
 import os, sys
+from fenx.tools import utils
+utils.fix_qt_platform_lib()
 from . import shared_methods
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
