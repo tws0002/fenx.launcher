@@ -13,9 +13,9 @@
   // URL for HELP action
   "HELP_URL": "http://docs.fenxpipeline.com",
   //  "LOGIN_DIALOG_CLASS": "fenx.launcher.tray_menu.widgets.login_dialog.LoginDialog",   // default dialog
-  "RESOURCE_ICON_PATH+":[
-    "$CONFIG_FILE_DIR/icons"
-  ],
+//  "RESOURCE_ICON_PATH+":[
+//    "$CONFIG_FILE_DIR/icons"
+//  ],
   "RESOURCE_STYLE_PATH+":[
     "$CONFIG_FILE_DIR/style"
   ],

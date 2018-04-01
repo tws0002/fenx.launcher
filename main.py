@@ -24,12 +24,12 @@ class Launcher(QObject):
     """
     NO_GUI = '-nogui' in sys.argv
     executeSignal = pyqtSignal(object)
-    sharedMethodRequestedSignal = pyqtSignal(object)
+    # sharedMethodRequestedSignal = pyqtSignal(object)
 
     def __init__(self, creation_event):
         super(Launcher, self).__init__()
         self.executeSignal.connect(self._execute_signal)
-        self.sharedMethodRequestedSignal.connect(self._shared_methods_signal)
+        # self.sharedMethodRequestedSignal.connect(self._shared_methods_signal)
         if self.NO_GUI:
             print('NO GUI MODE')
             # todo: add no gui mode
@@ -52,7 +52,8 @@ class Launcher(QObject):
             self.CONSOLE.show()
         event.emit('on_launcher_started', self)
 
-    def apply_stylesheet(self, widget):
+    @classmethod
+    def apply_stylesheet(cls, widget):
         # icon
         widget.setWindowIcon(QIcon(get_icon('fenx')))
         # style
@@ -298,41 +299,41 @@ QAbstractItemView:item
         callback()
 
     # SHARED METHODS
-    def _shared_methods_signal(self, data):
-        try:
-            self._shared_method_requested(data)
-        except Exception as e:
-            logger.error('Shared Method Error: {}'.format(e))
-
-    def _shared_method_requested(self, data):
-        if 'pong' in data:
-            self.CONSOLE.log('PONG')
-            return
-        if not data.get('method'):
-            raise Exception('Method not set')
-        callback = self._get_callback(data['method'])
-        if not callback:
-            raise Exception('Method not found')
-        return callback(*data.get('args', []), **data.get('kwargs', {}))
-
-    def _get_callback(self, path):
-        obj = None
-        elem = path.split('.')
-        if len(elem) == 1:
-            # self methods
-            obj = self.SHARED_METHODS
-            method = path
-        elif len(elem) == 2:
-            method = elem[1]
-            plg = self.plugins.get(elem[0])
-            if not plg:
-                raise Exception('Object {} not found'.format(elem[0]))
-            obj = plg.SHARED_METHODS
-        else:
-            raise Exception('Wrong path')
-        if not obj:
-            return
-        return getattr(obj, method, None)
+    # def _shared_methods_signal(self, data):
+    #     try:
+    #         self._shared_method_requested(data)
+    #     except Exception as e:
+    #         logger.error('Shared Method Error: {}'.format(e))
+    #
+    # def _shared_method_requested(self, data):
+    #     if 'pong' in data:
+    #         self.CONSOLE.log('PONG')
+    #         return
+    #     if not data.get('method'):
+    #         raise Exception('Method not set')
+    #     callback = self._get_callback(data['method'])
+    #     if not callback:
+    #         raise Exception('Method not found')
+    #     return callback(*data.get('args', []), **data.get('kwargs', {}))
+    #
+    # def _get_callback(self, path):
+    #     obj = None
+    #     elem = path.split('.')
+    #     if len(elem) == 1:
+    #         # self methods
+    #         obj = self.SHARED_METHODS
+    #         method = path
+    #     elif len(elem) == 2:
+    #         method = elem[1]
+    #         plg = self.plugins.get(elem[0])
+    #         if not plg:
+    #             raise Exception('Object {} not found'.format(elem[0]))
+    #         obj = plg.SHARED_METHODS
+    #     else:
+    #         raise Exception('Wrong path')
+    #     if not obj:
+    #         return
+    #     return getattr(obj, method, None)
 
     def log(self, *args, **kwargs):
         msg = ' '.join([str(x) for x in args]).strip()
