@@ -24,7 +24,7 @@ class Plugin(BasePlugin):
         admmin_menu.append(main_menu.MenuItem('Workspace Folder', 'folder_open', lambda: open_folder(config.WORKSPACE_LOCATION)))
         admmin_menu.append(main_menu.MenuItem('Settings Folder', 'settings', lambda: open_folder(settings._root_dir)))
         admmin_menu.append(main_menu.MenuItem('Config File', 'document', lambda :open_text_file(os.path.join(os.getenv('STUDIO_LOCATION', ''), 'config.json'))))
-        admmin_menu.append(main_menu.MenuItem('Restart', 'update', self.restart_action))
+        admmin_menu.append(main_menu.MenuItem('Restart Launcher', 'update', self.restart_action))
         tools_menu.append(admmin_menu)
         if config._get('DEBUG') or os.getenv('DEBUGCONSOLE') == '1':
             dbg_menu = main_menu.SubMenu('Debug', 'debug', name=self.item_name + '_debug')
