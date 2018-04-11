@@ -207,6 +207,30 @@ QTreeView:item:alternate{
 QListView:item{
      color: #b7b7b7;
  }
+QListWidget::indicator:checked {
+    image: url(:/cb_checked.png)
+}
+QListWidget::indicator:checked:disabled {
+    image: url(:/cb_checked_disabled.png)
+}
+
+QListWidget::indicator:unchecked {
+    image: url(:/rb_unchecked.png)
+}
+QListWidget::indicator:unchecked:disabled {
+    image: url(:/cb_unchecked_disabled.png)
+}
+
+QListWidget::indicator:indeterminate {
+    image: url(:/cb_intermediate.png)
+}
+QListWidget::indicator:indeterminate:disabled {
+    image: url(:/cb_intermediate_disabled.png)
+}
+
+QListWidget::indicator {
+    width: 16px; height:16px;
+}
 
 QTreeView:branch:has-siblings:!adjoins-item
 {
@@ -255,7 +279,7 @@ QAbstractItemView:item:hover
 QAbstractItemView:item::selected
 {
     background-color: #44505b;
-    color: #000000;
+    color: #f6f6f6;
 }
 QAbstractItemView:item::disabled, QAbstractItemView:item::disabled:hover
 {

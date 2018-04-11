@@ -1,8 +1,6 @@
 import inspect, traceback
 import logging as _logging
 import os, sys
-from fenx.tools import utils
-utils.fix_qt_platform_lib()
 from . import shared_methods
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -240,6 +238,7 @@ QAbstractItemView:item
         # if self._is_logged_in():
         #     self.update_menu()
         #     return
+
         self.update_menu()
         if user.need_to_authorization:
             dialog_class = config._get('LOGIN_DIALOG_CLASS')
