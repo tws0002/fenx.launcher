@@ -155,9 +155,7 @@ QAbstractItemView:item
     def __update_menu(self):
         self.set_menu(main_menu.MainTrayMenu.waiting_menu('Waiting...'), 'tray_wait')
         data = self.generate_menu_data()
-        tray_menu = main_menu.MainTrayMenu(data, self,
-                                           # title=config.WORKSPACE_TITLE or 'STUDIO'
-                                           )
+        tray_menu = main_menu.MainTrayMenu(data, self)
         try:
             tray_menu.rebuildSignal.disconnect()
         except:
