@@ -381,6 +381,21 @@ QMenu::item:selected
     background-color: #555555;
 }
 
+QMenu::item:selected:disabled
+{
+    color: #6d6d6d;
+    background-color: #3e3e3e;
+}
+QMenuBar::item:disabled
+{
+    background: transparent;
+    color: #4d4d4d;
+}
+QMenu::item:disabled
+{
+    color: #595959;
+}
+
 
 QSpinBox, QSpinBox:focus {
     border: 1px solid #808080;

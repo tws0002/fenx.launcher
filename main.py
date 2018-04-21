@@ -77,8 +77,8 @@ QAbstractItemView:item
         # frm.add_rule('Process', [re.compile(r"ws\w+Signal\s>>.*")], italic=True, color='#5D9DCA')
         # frm.add_rule('Process', [re.compile(r"localServer\w+Signal\s>>.*")], italic=True, color='#87ADA2')
         log_file = os.path.join(settings._root_dir, '.%sstarter_console.log' % (
-        (config._get('WORKSPACE_NAME', '') + '_') if config._get('WORKSPACE_NAME') else ''))
-        return console.Console(self, formatter=frm, log_file=log_file,
+        (config.WORKSPACE_NAME + '_') if config._get('WORKSPACE_NAME') else ''))
+        return console.Console(self, formatter=frm,
                                      load_settings_callback=lambda: settings.CONSOLE_PREFS,
                                      save_settings_callback=lambda x: settings._set_value('CONSOLE_PREFS',x)
                                )
