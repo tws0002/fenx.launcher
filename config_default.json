@@ -1,5 +1,6 @@
 {
   // icon name to file or new name
+  "ENABLED_PLUGINS+": ["fenx.launcher"],
   "ICONS": {
 //    "tray": "$CONFIG_FILE_DIR/icons/tray.png",
 //    "tray_wait": "$CONFIG_FILE_DIR/icons/tray_wait.png",

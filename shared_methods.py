@@ -6,8 +6,11 @@ logger = _logging.getLogger(__name__)
 
 class SharedMethods(BaseSharedMethods):
 
+    def _execute_in_qt_thread(self, callback):
+        self.PLUGIN.main.executeSignal.emit(lambda: callback())
+
     def plugins(self, *args, **kwargs):
-        return list(self.PLUGIN.plugins.keys())
+        return list(self.PLUGIN.main.plugins.keys())
 
     def emit(self, event_name, *args, **kwargs):
         event.emit(event_name, *args, **kwargs)
@@ -18,11 +21,11 @@ class SharedMethods(BaseSharedMethods):
             self.PLUGIN.log(msg)
 
     def exit(self):
-        self._execute_in_qt_thread(self.PLUGIN.exit)
+        self._execute_in_qt_thread(self.PLUGIN.main.exit)
 
     def workspace_name(self):
         from fenx.api import pipeline
         return pipeline.Workspace.current().fullname
 
     def say_hello(self):
-        self.PLUGIN.startup_notification()
+        self.PLUGIN.main.startup_notification()

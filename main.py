@@ -1,7 +1,7 @@
 import inspect, traceback
 import logging as _logging
 import os, sys
-from . import shared_methods
+# from . import shared_methods
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -24,6 +24,9 @@ class Launcher(QObject):
     NO_GUI = '-nogui' in sys.argv
     executeSignal = pyqtSignal(object)
     exitSignal = pyqtSignal()
+    reloadMenuSignal = pyqtSignal()
+    _default_waiting_text = 'Waiting...'
+    name = 'launcher'
 
     def __init__(self, creation_event):
         super(Launcher, self).__init__()
@@ -37,6 +40,7 @@ class Launcher(QObject):
             raise Exception('Launcher for workspace "{}" already started'.format(self._bind.name()))
         self._bind.lock()
         self.executeSignal.connect(self._execute_signal)
+        self.reloadMenuSignal.connect(self.update_menu)
         if self.NO_GUI:
             print('NO GUI MODE')
             # todo: add no gui mode
@@ -48,13 +52,14 @@ class Launcher(QObject):
         self.tray_icon.activated.connect(self.tray_icon_activated)
         self.set_normal()
         # https://github.com/robobenklein/openairplay/blob/master/main.py
-        self.SHARED_METHODS = shared_methods.SharedMethods(self)
+        # self.SHARED_METHODS = shared_methods.SharedMethods(self)
         self.CONSOLE = self.create_console()
         self.tray_menu = QMenu()
         self.tray_icon.show()
         self.plugins = {}
         self.init_plugins()
         self.login_action()
+        # self.tray_icon.messageClicked.connect(lambda :self.tray_menu.popup(QCursor.pos()))
         self.exitSignal.connect(self.exitEvent)
         if (config._get('DEBUG') or os.getenv('DEBUGCONSOLE') == '1') and self.CONSOLE:
             self.CONSOLE.show()
@@ -65,7 +70,7 @@ class Launcher(QObject):
 
     def startup_notification(self):
         self.tray_icon.showMessage('Fenx Launcher v{}'.format(version),
-                                   'Workspace "{}" is started.'.format(self._bind._workspace.title))
+                                   'Workspace: {}'.format(self._bind._workspace.title))
 
     @classmethod
     def apply_stylesheet(cls, widget):
@@ -173,7 +178,10 @@ QAbstractItemView:item
             self.__update_menu()
 
     def __update_menu(self):
-        self.set_menu(main_menu.MainTrayMenu.waiting_menu('Waiting...'), 'tray_wait')
+        self.waiting_menu()
+        self.set_menu(self._generate_menu())
+
+    def _generate_menu(self):
         data = self.generate_menu_data()
         tray_menu = main_menu.MainTrayMenu(data, self)
         try:
@@ -181,14 +189,15 @@ QAbstractItemView:item
         except:
             pass
         tray_menu.rebuildSignal.connect(self.update_and_reopen)
-        self.set_menu(tray_menu)
+        return tray_menu
 
-    def waiting_menu(self, text):
+    def waiting_menu(self, text=None):
         """
         Text method. To discard changed call update_menu()
         :param text: Menu text
         """
-        self.set_menu(main_menu.MainTrayMenu.waiting_menu(text), 'tray_wait')
+        text = text or self._default_waiting_text
+        self.set_menu(main_menu.MainTrayMenu.waiting_menu(str(text)), 'tray_wait')
 
     def update_and_reopen(self):
         """
