@@ -16,3 +16,10 @@ class SharedMethods(BaseSharedMethods):
         msg = ' '.join([str(x) for x in args]).strip()
         if msg:
             self.PLUGIN.log(msg)
+
+    def exit(self):
+        self._execute_in_qt_thread(self.PLUGIN.exit)
+
+    def workspace_name(self):
+        from fenx.api import pipeline
+        return pipeline.Workspace.current().fullname

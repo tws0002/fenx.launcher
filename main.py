@@ -7,6 +7,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from fenx.config import config, settings
 from fenx.dialogs.py_console import console
+from fenx.launcher import binding
 from fenx.resources import get_icon, get_style
 from fenx.user import user
 from fenx.launcher import __version__ as version
@@ -22,12 +23,15 @@ class Launcher(QObject):
     """
     NO_GUI = '-nogui' in sys.argv
     executeSignal = pyqtSignal(object)
-    # sharedMethodRequestedSignal = pyqtSignal(object)
+    exitSignal = pyqtSignal()
 
     def __init__(self, creation_event):
         super(Launcher, self).__init__()
+        self._bind = binding.WorkspaceBinding(parent=self)
+        if self._bind.is_locked():
+            raise Exception('Launcher for workspace "{}" already started'.format(self._bind.name()))
+        self._bind.lock()
         self.executeSignal.connect(self._execute_signal)
-        # self.sharedMethodRequestedSignal.connect(self._shared_methods_signal)
         if self.NO_GUI:
             print('NO GUI MODE')
             # todo: add no gui mode
@@ -46,6 +50,7 @@ class Launcher(QObject):
         self.plugins = {}
         self.init_plugins()
         self.login_action()
+        self.exitSignal.connect(self.exitEvent)
         if (config._get('DEBUG') or os.getenv('DEBUGCONSOLE') == '1') and self.CONSOLE:
             self.CONSOLE.show()
         event.emit('on_launcher_started', self)
@@ -76,8 +81,8 @@ QAbstractItemView:item
         # frm.add_rule('Process', [re.compile(r"process\w+Signal\s>>.*")], italic=True, color='#85C2C0')
         # frm.add_rule('Process', [re.compile(r"ws\w+Signal\s>>.*")], italic=True, color='#5D9DCA')
         # frm.add_rule('Process', [re.compile(r"localServer\w+Signal\s>>.*")], italic=True, color='#87ADA2')
-        log_file = os.path.join(settings._root_dir, '.%sstarter_console.log' % (
-        (config.WORKSPACE_NAME + '_') if config._get('WORKSPACE_NAME') else ''))
+        # log_file = os.path.join(settings._root_dir, '.%sstarter_console.log' % (
+        # (config.WORKSPACE_NAME + '_') if config._get('WORKSPACE_NAME') else ''))
         return console.Console(self, formatter=frm,
                                      load_settings_callback=lambda: settings.CONSOLE_PREFS,
                                      save_settings_callback=lambda x: settings._set_value('CONSOLE_PREFS',x)
@@ -115,6 +120,9 @@ QAbstractItemView:item
         """
         self.CONSOLE.log(msg)
         self.tray_icon.showMessage('Workspace Menu v%s' % version, msg)
+
+    def exit(self):
+        self.exitSignal.emit()
 
     def exitEvent(self):
         """
@@ -295,44 +303,11 @@ QAbstractItemView:item
     def _execute_signal(self, callback):
         callback()
 
-    # SHARED METHODS
-    # def _shared_methods_signal(self, data):
-    #     try:
-    #         self._shared_method_requested(data)
-    #     except Exception as e:
-    #         logger.error('Shared Method Error: {}'.format(e))
-    #
-    # def _shared_method_requested(self, data):
-    #     if 'pong' in data:
-    #         self.CONSOLE.log('PONG')
-    #         return
-    #     if not data.get('method'):
-    #         raise Exception('Method not set')
-    #     callback = self._get_callback(data['method'])
-    #     if not callback:
-    #         raise Exception('Method not found')
-    #     return callback(*data.get('args', []), **data.get('kwargs', {}))
-    #
-    # def _get_callback(self, path):
-    #     obj = None
-    #     elem = path.split('.')
-    #     if len(elem) == 1:
-    #         # self methods
-    #         obj = self.SHARED_METHODS
-    #         method = path
-    #     elif len(elem) == 2:
-    #         method = elem[1]
-    #         plg = self.plugins.get(elem[0])
-    #         if not plg:
-    #             raise Exception('Object {} not found'.format(elem[0]))
-    #         obj = plg.SHARED_METHODS
-    #     else:
-    #         raise Exception('Wrong path')
-    #     if not obj:
-    #         return
-    #     return getattr(obj, method, None)
-
     def log(self, *args, **kwargs):
         msg = ' '.join([str(x) for x in args]).strip()
         if msg:
             self.CONSOLE.log(msg)
+
+
+
+
