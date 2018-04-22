@@ -23,3 +23,6 @@ class SharedMethods(BaseSharedMethods):
     def workspace_name(self):
         from fenx.api import pipeline
         return pipeline.Workspace.current().fullname
+
+    def say_hello(self):
+        self.PLUGIN.startup_notification()

@@ -29,6 +29,11 @@ class Launcher(QObject):
         super(Launcher, self).__init__()
         self._bind = binding.WorkspaceBinding(parent=self)
         if self._bind.is_locked():
+            try:
+                from fenx.local_server.http import client
+                client.REQUEST.launcher.say_hello()
+            except:
+                pass
             raise Exception('Launcher for workspace "{}" already started'.format(self._bind.name()))
         self._bind.lock()
         self.executeSignal.connect(self._execute_signal)
@@ -54,6 +59,13 @@ class Launcher(QObject):
         if (config._get('DEBUG') or os.getenv('DEBUGCONSOLE') == '1') and self.CONSOLE:
             self.CONSOLE.show()
         event.emit('on_launcher_started', self)
+        settings.LAUNCHER_START_COUNT = (settings.LAUNCHER_START_COUNT or 0) + 1
+        if settings.LAUNCHER_START_COUNT < 3:
+            self.startup_notification()
+
+    def startup_notification(self):
+        self.tray_icon.showMessage('Fenx Launcher v{}'.format(version),
+                                   'Workspace "{}" is started.'.format(self._bind._workspace.title))
 
     @classmethod
     def apply_stylesheet(cls, widget):
