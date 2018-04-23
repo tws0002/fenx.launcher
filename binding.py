@@ -16,7 +16,9 @@ class WorkspaceBinding(object):
         return os.path.join(os.path.expanduser('~'), '.workspace_bind_file__{}'.format(self.name()))
 
     def name(self):
-        return self._workspace.fullname.replace(':', '-')
+        if self._workspace:
+            return self._workspace.fullname.replace(':', '-')
+        return ''
 
     def is_locked(self):
         if not os.path.exists(self.bind_file):
