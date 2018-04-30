@@ -24,8 +24,8 @@ class SharedMethods(BaseSharedMethods):
         self._execute_in_qt_thread(self.PLUGIN.main.exit)
 
     def workspace_name(self):
-        from fenx.api import pipeline
-        return pipeline.Workspace.current().fullname
+        from fenx.api import Workspace
+        return Workspace.current().fullname
 
     def say_hello(self):
         self.PLUGIN.main.startup_notification()

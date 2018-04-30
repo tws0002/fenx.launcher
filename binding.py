@@ -1,5 +1,4 @@
 import os
-from fenx.api import pipeline
 from fenx.tools import setup_log
 import logging as _logging
 logger = _logging.getLogger(__name__)
@@ -7,7 +6,7 @@ logger = _logging.getLogger(__name__)
 
 class WorkspaceBinding(object):
     def __init__(self, workspace=None, parent=None):
-        self._workspace = workspace or pipeline.Workspace.current()
+        self._workspace = workspace
         self._parent = parent
         self.f = None
 
