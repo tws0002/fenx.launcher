@@ -77,7 +77,7 @@ class Launcher(QObject):
         # icon
         widget.setWindowIcon(QIcon(get_icon('fenx')))
         # style
-        st = get_style(config.DEFAULT_STYLE)
+        st = get_style(config._get('DEFAULT_STYLE', ''))
         if not st:
             return
         widget.setStyleSheet(st)
