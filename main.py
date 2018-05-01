@@ -10,6 +10,7 @@ from fenx.dialogs.py_console import console
 from fenx.launcher import binding
 from fenx.resources import get_icon, get_style
 from fenx.user import user
+from fenx.api import Workspace
 from fenx.launcher import __version__ as version
 from .widgets import main_menu
 from fenx.studio.events import event
@@ -30,7 +31,7 @@ class Launcher(QObject):
 
     def __init__(self, creation_event):
         super(Launcher, self).__init__()
-        self._bind = binding.WorkspaceBinding(parent=self)
+        self._bind = binding.WorkspaceBinding(workspace=Workspace.current(), parent=self)
         if self._bind.is_locked():
             try:
                 from fenx.local_server.http import client
