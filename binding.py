@@ -1,6 +1,7 @@
 import os
 from fenx.tools import setup_log
 import logging as _logging
+from fenx.config import settings
 logger = _logging.getLogger(__name__)
 
 
@@ -12,7 +13,7 @@ class WorkspaceBinding(object):
 
     @property
     def bind_file(self):
-        return os.path.join(os.path.expanduser('~'), '.workspace_bind_file__{}'.format(self.name()))
+        return os.path.join(settings._root_dir, '.workspace_bind_file__{}'.format(self.name()))
 
     def name(self):
         if self._workspace:
